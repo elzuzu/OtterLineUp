@@ -295,6 +295,7 @@ board:
         notes:
           - "2024-06-12: SDK TypeScript expose conversions & m_net (micro-lot 1)"
           - "2024-07-02: Helper seuil m_net + tests conversions odds (micro-lot 2)"
+          - "2024-07-06: Nettoyage export RuntimeRegistry (micro-lot 3)"
       - id: E9-S1A
         title: "Module TS convertisseurs odds & net margin"
         type: Task
@@ -309,16 +310,24 @@ board:
         assignee: agent-otter-9
         notes:
           - "2024-07-05: NetMarginError + threshold evaluation (Rust execution crate)"
+      - id: E9-S1-T4
+        title: "SDK TS RuntimeRegistry exports fix"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-9
+        notes:
+          - "2024-07-06: Corrected duplicate exports and missing types"
 board:
   Ready: []
   In_Progress:
     - E9-S1
   In_Review:
     - E9-S1-T3
+    - E9-S1-T4
   Done:
     - E9-S1A
   Blocked: []
-  updated_at: "2024-07-05T09:00:00Z"
+  updated_at: "2024-07-06T09:00:00Z"
 
 epics:
   EPIC-4:

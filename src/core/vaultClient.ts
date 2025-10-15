@@ -50,12 +50,11 @@ export class VaultClient {
   async revoke(): Promise<void> {
     if (!this.token) return;
     try {
-      await this.rawRequest('POST', 'auth/token/revoke-self');
+      await this.rawRequest('POST', 'auth/token/revoke-self', undefined, false);
     } catch (error) {
       if (!(error instanceof VaultError && (error.status === 403 || error.status === 404))) throw error;
     } finally {
-      this.token = null;
-      this.tokenExpiresAt = 0;
+      this.clearToken();
     }
   }
 
@@ -85,7 +84,7 @@ export class VaultClient {
     const payload = await this.rawRequest<LoginPayload>('POST', 'auth/approle/login', {
       role_id: this.options.roleId,
       secret_id: this.options.secretId,
-    });
+    }, false);
     const auth = payload.auth;
     if (!auth?.client_token) throw new VaultError('Vault login missing client token');
     this.token = auth.client_token;
@@ -93,7 +92,17 @@ export class VaultClient {
     this.tokenExpiresAt = Date.now() + Math.max(0, ttl - this.minRenewSeconds / 2) * 1000;
   }
 
-  private async rawRequest<T>(method: string, path: string, body?: Record<string, unknown>): Promise<T> {
+  private clearToken(): void {
+    this.token = null;
+    this.tokenExpiresAt = 0;
+  }
+
+  private async rawRequest<T>(
+    method: string,
+    path: string,
+    body?: Record<string, unknown>,
+    allowReauth = true,
+  ): Promise<T> {
     const url = this.buildUrl(path);
     const headers: Record<string, string> = {};
     if (body) headers['Content-Type'] = 'application/json';
@@ -101,6 +110,15 @@ export class VaultClient {
     if (this.options.namespace) headers['X-Vault-Namespace'] = this.options.namespace;
     const response = await this.fetchImpl(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
     if (!response.ok) {
+      if (
+        allowReauth &&
+        this.token &&
+        (response.status === 401 || response.status === 403)
+      ) {
+        this.clearToken();
+        await this.loginWithRetry();
+        return this.rawRequest<T>(method, path, body, false);
+      }
       let message = `Vault request failed with status ${response.status}`;
       try {
         const errorPayload = (await response.json()) as { errors?: string[] };

@@ -176,10 +176,18 @@ epics:
         notes:
           - "Vault policies extended, CI smoke wired"
           - "2024-06-12: Vault AppRole client TS ready for review"
+      - id: E2-S1-T3
+        title: "Vault client réauth 401/403 + tests"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-2
+        notes:
+          - "Auto-réauth sur invalidation token et couverture tests node:test"
 board:
   Ready: []
   In_Progress: []
-  In_Review: []
+  In_Review:
+    - E2-S1-T3
   Done:
     - E2-S1
   Blocked: []

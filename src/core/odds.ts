@@ -98,6 +98,14 @@ const ensureCost = (value: number, label: string): number => {
   return value;
 };
 
+const ensureMarginThreshold = (value: number): number => {
+  ensureFinite(value, 'threshold');
+  if (value <= -1 || value >= 1) {
+    throw new OddsConversionError('threshold must be within (-1, 1)');
+  }
+  return value;
+};
+
 export const computeNetMargin = (inputs: NetMarginInputs): NetMarginBreakdown => {
   const oddsSx = ensureDecimalOdds(inputs.oddsSx);
   const oddsAzuro = ensureDecimalOdds(inputs.oddsAzuro);
@@ -117,4 +125,10 @@ export const computeNetMargin = (inputs: NetMarginInputs): NetMarginBreakdown =>
   const netMargin = grossMargin - (feesTotal + slippageTotal + gasTotal);
 
   return { grossMargin, feesTotal, slippageTotal, gasTotal, netMargin };
+};
+
+export const meetsNetMarginThreshold = (inputs: NetMarginInputs, threshold: number): boolean => {
+  const target = ensureMarginThreshold(threshold);
+  const breakdown = computeNetMargin(inputs);
+  return breakdown.netMargin >= target;
 };

@@ -24,11 +24,12 @@ export { MetricsTracker, type MetricsSnapshot, type TradeSample } from './ops/me
 export {
   evaluateMetricsCompliance,
   assertRealMoneyEnabled,
+  deriveComplianceThresholds,
   type ComplianceThresholds,
   type ComplianceGuardResult,
   type ExecConfigEnvelope,
+  type DeriveComplianceOptions,
 } from './ops/complianceGuards.js';
-export { RuntimeRegistry, type RuntimeRegistryOptions, type BankBalance, type GasSnapshot, type SxMetadata, type AzuroLimits, type SequencerHealth } from './core/runtimeRegistry.js';
 export {
   OddsConversionError,
   americanFromDecimal,

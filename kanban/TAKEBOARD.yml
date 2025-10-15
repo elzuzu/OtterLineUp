@@ -6,9 +6,9 @@ epics:
 lanes:
   Backlog: []
   Ready: []
-  In_Progress: []
-  In_Review:
+  In_Progress:
     - E1-S1
+  In_Review: []
   Done:
     - B0-TKB
   Blocked: []

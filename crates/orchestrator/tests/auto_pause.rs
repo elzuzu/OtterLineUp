@@ -1,7 +1,7 @@
 use orchestrator::config::ExecConfig;
 use orchestrator::execution_service::{
-    AutoPauseConfig, AutoPauseController, AutoPauseDecision, AutoPauseReason, MetricsWindow,
-    RuntimeHealth,
+    AutoPauseConfig, AutoPauseController, AutoPauseDecision, AutoPauseReason, AutoPauseTracker,
+    MetricsWindow, RuntimeHealth,
 };
 use std::time::{Duration, SystemTime};
 
@@ -100,4 +100,75 @@ fn evaluate_with_timestamp_wraps_reason_and_time() {
             && evaluated_at == now
     ));
     assert_eq!(decision.metric_label(), "fill_ratio_low");
+}
+
+#[test]
+fn tracker_emits_only_on_reason_change() {
+    let exec_cfg = ExecConfig {
+        fill_ratio_min: 0.65,
+        ..ExecConfig::default()
+    };
+    let mut tracker = AutoPauseTracker::from_exec_config(&exec_cfg);
+    let runtime = healthy_runtime();
+    let low_metrics = MetricsWindow {
+        fill_ratio: 0.6,
+        p95_accept_time_ms: 800,
+    };
+    let ts1 = SystemTime::UNIX_EPOCH + Duration::from_secs(10);
+    let first = tracker
+        .evaluate(low_metrics, runtime, ts1)
+        .expect("first pause");
+    assert!(matches!(first.reason, AutoPauseReason::FillRatioLow { .. }));
+
+    let ts2 = SystemTime::UNIX_EPOCH + Duration::from_secs(11);
+    assert!(tracker.evaluate(low_metrics, runtime, ts2).is_none());
+
+    let healthy_metrics = MetricsWindow {
+        fill_ratio: 0.7,
+        p95_accept_time_ms: 700,
+    };
+    assert!(tracker.evaluate(healthy_metrics, runtime, ts2).is_none());
+
+    let ts3 = SystemTime::UNIX_EPOCH + Duration::from_secs(12);
+    let second = tracker
+        .evaluate(low_metrics, runtime, ts3)
+        .expect("pause after recovery");
+    assert!(matches!(second.reason, AutoPauseReason::FillRatioLow { .. }));
+    assert!(second.evaluated_at >= ts3);
+}
+
+#[test]
+fn tracker_updates_thresholds_from_exec_config() {
+    let mut tracker = AutoPauseTracker::from_exec_config(&ExecConfig {
+        fill_ratio_min: 0.5,
+        p95_accept_time_ms_max: 900,
+        ..ExecConfig::default()
+    });
+    tracker.update_from_exec(&ExecConfig {
+        fill_ratio_min: 0.5,
+        p95_accept_time_ms_max: 800,
+        ..ExecConfig::default()
+    });
+
+    let runtime = healthy_runtime();
+    let metrics = MetricsWindow {
+        fill_ratio: 0.7,
+        p95_accept_time_ms: 750,
+    };
+    assert!(tracker
+        .evaluate(metrics, runtime, SystemTime::UNIX_EPOCH)
+        .is_none());
+
+    let slow_metrics = MetricsWindow {
+        fill_ratio: 0.7,
+        p95_accept_time_ms: 900,
+    };
+    let pause = tracker
+        .evaluate(
+            slow_metrics,
+            runtime,
+            SystemTime::UNIX_EPOCH + Duration::from_secs(1),
+        )
+        .expect("pause on slow accept time");
+    assert!(matches!(pause.reason, AutoPauseReason::AcceptTimeHigh { .. }));
 }

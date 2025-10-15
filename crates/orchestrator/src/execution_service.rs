@@ -126,3 +126,58 @@ impl AutoPauseController {
             .map(|reason| AutoPauseDecision { reason, evaluated_at })
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct AutoPauseTracker {
+    controller: AutoPauseController,
+    last_decision: Option<AutoPauseDecision>,
+}
+
+impl AutoPauseTracker {
+    pub fn new(controller: AutoPauseController) -> Self {
+        Self {
+            controller,
+            last_decision: None,
+        }
+    }
+
+    pub fn from_exec_config(exec: &ExecConfig) -> Self {
+        Self::new(AutoPauseController::new(AutoPauseConfig::from(exec)))
+    }
+
+    pub fn update_from_exec(&mut self, exec: &ExecConfig) {
+        self.controller.update_from_exec(exec);
+    }
+
+    pub fn evaluate(
+        &mut self,
+        metrics: MetricsWindow,
+        runtime: RuntimeHealth,
+        evaluated_at: SystemTime,
+    ) -> Option<AutoPauseDecision> {
+        let decision = self
+            .controller
+            .evaluate_with_timestamp(metrics, runtime, evaluated_at);
+
+        match decision {
+            Some(ref new_decision)
+                if self
+                    .last_decision
+                    .as_ref()
+                    .map(|last| &last.reason)
+                    != Some(&new_decision.reason) =>
+            {
+                self.last_decision = Some(new_decision.clone());
+                Some(new_decision.clone())
+            }
+            Some(new_decision) => {
+                self.last_decision = Some(new_decision);
+                None
+            }
+            None => {
+                self.last_decision = None;
+                None
+            }
+        }
+    }
+}

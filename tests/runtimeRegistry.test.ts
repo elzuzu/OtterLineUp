@@ -3,9 +3,12 @@ import { beforeEach, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   RuntimeRegistry,
-  type RuntimeRegistryOptions,
   type BankSnapshot,
   type GasSnapshot,
+  type SxMetadataSnapshot,
+  type AzuroLimitsSnapshot,
+  type SequencerStatus,
+  type RuntimeRegistryOptions,
 } from '../src/core/runtimeRegistry.js';
 import { AzuroClient, AzuroClientError } from '../src/clients/azuroClient.js';
 
@@ -124,7 +127,7 @@ test('RuntimeRegistry rejects stale snapshots based on timestamps', async () => 
   await assert.rejects(registry.getBank(), /snapshot stale/);
 });
 let nowMs = 1_000;
-const tick = (delta: number) => {
+const advance = (delta: number) => {
   nowMs += delta;
 };
 const snapshotTime = () => new Date(nowMs);
@@ -133,6 +136,52 @@ const gasCalls = new Map<string, number>();
 let metadataCalls = 0;
 let azuroCalls = 0;
 let sequencerCalls = 0;
+
+const resetCounters = () => {
+  bankCalls = 0;
+  gasCalls.clear();
+  metadataCalls = 0;
+  azuroCalls = 0;
+  sequencerCalls = 0;
+};
+
+const baseTtl = { bankMs: 80, gasMs: 80, sxMetadataMs: 80, azuroLimitsMs: 80, sequencerMs: 80 } as const;
+
+const makeFetchers = () => ({
+  bank: async (): Promise<BankSnapshot> => ({
+    totalUsd: (bankCalls += 1, 250),
+    perChainUsd: { 'sx-rollup': 150, 'arbitrum-one': 100 },
+    fetchedAt: new Date(nowMs),
+  }),
+  gas: async (chain: string): Promise<GasSnapshot> => ({
+    chain,
+    priceGwei: (gasCalls.set(chain, (gasCalls.get(chain) ?? 0) + 1), chain === 'sx-rollup' ? 0.1 : 0.5),
+    fetchedAt: new Date(nowMs),
+  }),
+  sxMetadata: async (): Promise<SxMetadataSnapshot> => ({
+    oddsLadder: (metadataCalls += 1, [1.91, 1.95]),
+    bettingDelayMs: 300,
+    heartbeatMs: 2_000,
+    fetchedAt: new Date(nowMs),
+  }),
+  azuroLimits: async (): Promise<AzuroLimitsSnapshot> => ({
+    maxPayoutUsd: (azuroCalls += 1, 5_000),
+    quoteMargin: 0.04,
+    fetchedAt: new Date(nowMs),
+  }),
+  sequencer: async (): Promise<SequencerStatus> => ({
+    chain: 'arbitrum-one',
+    healthy: (sequencerCalls += 1, true),
+    checkedAt: new Date(nowMs),
+  }),
+});
+
+resetCounters();
+const registry = new RuntimeRegistry({
+  ttl: baseTtl,
+  clock: () => nowMs,
+  fetchers: makeFetchers(),
+});
 
 const opts: RuntimeRegistryOptions = {
   ttl: { bankMs: 80, gasMs: 80, sxMetadataMs: 80, azuroLimitsMs: 80, sequencerMs: 80 },
@@ -194,10 +243,14 @@ assert.equal(bankA.totalUsd, 250);
 assert.equal(bankB.totalUsd, 250);
 assert.equal(bankCalls, 1);
 
+advance(30);
 tick(40);
 await registry.getBank();
 assert.equal(bankCalls, 1);
 
+advance(60);
+await registry.getBank();
+assert.equal(bankCalls, 2, 'bank cache should refresh after ttl');
 tick(50);
 await registry.getBank();
 assert.equal(bankCalls, 2);
@@ -220,6 +273,23 @@ await registry.sequencerHealth();
 await registry.sequencerHealth();
 assert.equal(sequencerCalls, 1);
 
+const anotherMetadataCall = registry.getSxMetadata();
+const anotherAzuroCall = registry.getAzuroLimits();
+const anotherSeqCall = registry.sequencerHealth();
+assert.strictEqual(anotherMetadataCall, registry.getSxMetadata());
+assert.strictEqual(anotherAzuroCall, registry.getAzuroLimits());
+assert.strictEqual(anotherSeqCall, registry.sequencerHealth());
+await Promise.all([anotherMetadataCall, anotherAzuroCall, anotherSeqCall]);
+assert.equal(metadataCalls, 1);
+assert.equal(azuroCalls, 1);
+assert.equal(sequencerCalls, 1);
+
+nowMs = 5_000;
+resetCounters();
+const staleRegistry = new RuntimeRegistry({
+  ttl: baseTtl,
+assert.equal(sequencerCalls, 1);
+
 registry.invalidate();
 await registry.getBank();
 assert.equal(bankCalls, 3);
@@ -228,9 +298,11 @@ const staleRegistry = new RuntimeRegistry({
   ttl: opts.ttl,
   clock: () => nowMs,
   fetchers: {
-    ...opts.fetchers,
+    ...makeFetchers(),
     bank: async (): Promise<BankSnapshot> => ({
       totalUsd: 500,
+      perChainUsd: { 'sx-rollup': 300, 'arbitrum-one': 200 },
+      fetchedAt: new Date(nowMs - 10_000),
       perChainUsd: { 'sx-rollup': 300 },
       fetchedAt: new Date(nowMs - 10_000),
       checkedAt: new Date(nowMs),

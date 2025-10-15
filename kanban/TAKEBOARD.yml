@@ -290,8 +290,15 @@ epics:
         assignee: agent-otter-5
         notes:
           - "2024-07-05: Cache metadata snapshots in SxClient with TTL guard"
-    board: { Ready: [], In_Progress: [E5-S1], In_Review: [E5-S1-T1, E5-S1-T4, E5-S1-T5], Done: [], Blocked: [] }
-    updated_at: "2024-07-05T17:30:00Z"
+      - id: E5-S1-T6
+        title: "RuntimeRegistry resolve TTL guards (SX feed)"
+        type: Task
+        status: In_Progress
+        assignee: agent-otter-5
+        notes:
+          - "2024-07-06: Nettoyage resolve() + horloge injectée"
+    board: { Ready: [], In_Progress: [E5-S1, E5-S1-T6], In_Review: [E5-S1-T1, E5-S1-T4, E5-S1-T5], Done: [], Blocked: [] }
+    updated_at: "2024-07-06T13:00:00Z"
 ---
 epics:
   EPIC-2:

@@ -1,0 +1,7 @@
+sx_ttl_ms: 780
+azuro_ttl_ms: 2400
+fill_ratio_min: 0.65
+p95_accept_time_ms_max: 950
+threshold_net_pct: 0.015
+delta_odd_reject: 0.02
+real_money: true

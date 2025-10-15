@@ -1,4 +1,8 @@
 [workspace]
+members = [
+    "crates/orchestrator",
+]
+
 members = ["crates/normalization"]
 members = ["crates/monitoring"]
 members = ["crates/sx_client"]

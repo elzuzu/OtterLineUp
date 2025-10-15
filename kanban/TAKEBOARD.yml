@@ -85,6 +85,20 @@ updated_at: "2024-06-11T00:00:00Z"
 updated_at: "2024-06-10T00:00:00Z"
 ---
 epics:
+  EPIC-10:
+    title: "Orchestration & opérations"
+    owner: lane-orchestrateur
+    status: In_Progress
+    tickets:
+      - id: E10-S1
+        title: "Orchestrateur d’exécution cross-chain"
+        type: Story
+        status: In_Progress
+        assignee: agent-otter-10
+board:
+  Ready: []
+  In_Progress:
+    - E10-S1
   EPIC-8:
     title: "Normalisation marchés & mapping"
     owner: lane-normalisation

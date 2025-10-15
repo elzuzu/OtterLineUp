@@ -138,10 +138,17 @@ epics:
         status: In_Review
         assignee: agent-otter-6
         notes: "CamelCase serialization pour simulateQuote + distinction stake/amountToken."
+      - id: E6-S1-T4
+        title: "Client TS simulateQuote & garde-fous"
+        type: Task
+        status: In_Progress
+        assignee: agent-otter-6
+        notes: "Surface TypeScript Azuro client avec seuil Δodd, cap payout & validation stake."
 board:
   Ready: []
   In_Progress:
     - E6-S1
+    - E6-S1-T4
   In_Review:
     - E6-S1-T1
     - E6-S1-T2

@@ -95,6 +95,8 @@ epics:
         type: Story
         status: In_Progress
         assignee: agent-otter-10
+        notes:
+          - "Auto-pause controller implémenté (évaluation fill-ratio/p95/sequencer)"
 board:
   Ready: []
   In_Progress:

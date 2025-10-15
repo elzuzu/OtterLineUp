@@ -1,11 +1,10 @@
 [workspace]
 members = [
     "crates/orchestrator",
+    "crates/normalization",
+    "crates/monitoring",
+    "crates/sx_client",
+    "crates/azuro_client",
+    "crates/execution",
 ]
-
-members = ["crates/normalization"]
-members = ["crates/monitoring"]
-members = ["crates/sx_client"]
-members = ["crates/azuro_client"]
-members = ["crates/execution"]
 resolver = "2"

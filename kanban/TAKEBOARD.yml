@@ -25,19 +25,19 @@ epics:
     status: Ready
     tickets:
       Backlog: []
-      Ready:
+      Ready: []
+      In_Progress:
         - id: E7-S1
           title: "QoS mutualisée SX↔Azuro (latence & heartbeat)"
           ref: kanban/backlog/E7_S1_qos_commun.md
-      In_Progress: []
       In_Review: []
       Done: []
 board:
   Backlog: []
-  Ready:
+  Ready: []
+  In_Progress:
     - epic: EPIC-7
       ticket: E7-S1
-  In_Progress: []
   In_Review: []
   Done: []
 epics:

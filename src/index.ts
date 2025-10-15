@@ -33,6 +33,7 @@ export {
   applyCommission,
   removeOverround,
   computeNetMargin,
+  meetsNetMarginThreshold,
   type NetMarginInputs,
   type NetMarginBreakdown,
 } from './core/odds.js';

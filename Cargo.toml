@@ -1,4 +1,5 @@
 [workspace]
+members = ["crates/execution", "crates/azuro_client"]
 members = [
     "crates/orchestrator",
 ]

@@ -60,7 +60,7 @@ epics:
   EPIC-6:
     title: "Connecteur Azuro Arbitrum"
     owner: lane-azuro
-    status: Ready
+    status: In_Progress
     tickets:
       - id: BLOCKER-TAKEBOARD
         title: "takeboard/epic missing"
@@ -71,7 +71,7 @@ epics:
       - id: E6-S1
         title: "Client Azuro Liquidity Tree & hedge"
         type: Story
-        status: Ready
+        status: In_Progress
         assignee: lane-azuro
 board:
   Ready: []
@@ -81,6 +81,7 @@ board:
   Done:
     - BLOCKER-TAKEBOARD
   Blocked: []
+updated_at: "2024-06-11T12:00:00Z"
 updated_at: "2024-06-11T00:00:00Z"
 updated_at: "2024-06-10T00:00:00Z"
 ---

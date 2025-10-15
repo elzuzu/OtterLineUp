@@ -14,9 +14,9 @@ deps:
   - E5-S1
   - E6-S1
 acceptance:
-  - Dashboard Prometheus/Grafana `dashboards/arb_qos.json` couvrant latence, taux de retry, erreurs par opérateur.
-  - Alerting `ops/alerts/qos.yaml` avec seuil latence p95 > 350 ms et ratio erreurs > 2 %.
-  - Binaire heartbeat Rust (`crates/monitoring/src/bin/heartbeat.rs`) consignant SX & Azuro toutes les 30 s dans `monitoring/heartbeat.log`.
+  - Dashboard Prometheus/Grafana `dashboards/arb_qos.json` couvrant latence (dont `p95 accept-time`), fill-ratio ≥ 60 %, Δquote→fill, taux partial fills et void-rate.
+  - Alerting `ops/alerts/qos.yaml` avec seuil latence p95 > 350 ms, ratio erreurs > 2 % et trigger auto-pause si `fill_ratio < 60 %` ou `p95 > 1 s`.
+  - Binaire heartbeat Rust (`crates/monitoring/src/bin/heartbeat.rs`) consignant SX & Azuro toutes les 30 s dans `monitoring/heartbeat.log` et probant RPC SX Rollup + sequencer Arbitrum.
 evidence:
   - Capture dashboard (PNG) avant/après injection charge.
   - Export alertes Prometheus (`/api/v1/rules`).

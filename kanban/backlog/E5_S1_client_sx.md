@@ -13,17 +13,17 @@ deps:
   - E1-S1
   - E2-S1
 acceptance:
-  - Client WS/REST ultra-performant en Rust (`crates/sx_client/src/lib.rs`) basé sur Tokio, gérant heartbeat, reconnexion < 2 s et déduplication ordres.
-  - Gestion fills partiels/annulations via machine d’états `accepted/partial/void` persistée (`crates/sx_client/src/state.rs`) avec reprise transactionnelle.
-  - Tests d’intégration async (`crates/sx_client/tests/integration.rs`) mock + sandbox, exécutés via `cargo test`.
+  - API Rust (`crates/sx_client/src/lib.rs`) exposant `getBestQuote()` et `placeBet({odds, stake, oddsSlippage})` avec `oddsSlippage` borné (0–2) et respect strict de l’odds-ladder SX.
+  - Gestion des fills partiels autorisés et du betting-delay via machine d’états `accepted/partial/void`, avec auto-cancel heartbeat (< 30 s) si perte de session ou dépassement TTL interne.
+  - Tests d’intégration async (`crates/sx_client/tests/integration.rs`) couvrant partial fills, odds ladder et heartbeat, exécutés via `cargo test`.
 evidence:
   - Trace `tracing` dry-run montrant lifecycle complet (pending → accepted → settled/refused).
   - Rapport couverture `cargo tarpaulin` ≥ 80 % pour crate client.
   - Diagramme séquence `docs/seq/sx_client.md`.
 tasks:
-  - Implémenter client WS+REST asynchrone avec backoff exponentiel (`tokio`, `reqwest`, `tungstenite`) et auth signée Ed25519.
-  - Créer adaptateur mapping status vers modèle interne (`crates/sx_client/src/state.rs`) avec sérialisation `serde`.
-  - Écrire tests (mocks + sandbox) et binaire dry-run (`crates/sx_client/src/bin/dry_run.rs`).
+  - Implémenter client WS+REST asynchrone avec backoff exponentiel (`tokio`, `reqwest`, `tungstenite`) et auth signée Ed25519, incluant calcul `oddsSlippage` et respect de l’odds ladder SX.
+  - Créer adaptateur mapping status vers modèle interne (`crates/sx_client/src/state.rs`) assurant partial fills, betting-delay et auto-cancel heartbeat (`tokio::time::timeout`).
+  - Écrire tests (mocks + sandbox) et binaire dry-run (`crates/sx_client/src/bin/dry_run.rs`) enregistrant `fill_ratio`, `Δquote→fill` et latences.
 observability:
   - KPIs : latence round-trip, taux reconnexion, ratio fills partiels.
   - Logs : `order_id`, `status`, `latency_ms`, `retry_count`.

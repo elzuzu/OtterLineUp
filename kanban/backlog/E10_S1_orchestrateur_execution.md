@@ -15,9 +15,9 @@ deps:
   - E7-S1
   - E9-S3
 acceptance:
-  - Service Rust `crates/orchestrator/src/execution_service.rs` orchestrant jambe A → jambe B avec stratégie fallback (hedge, cancel) et SLA < 500 ms.
-  - Gestion transactions idempotentes, reprise sur incident (checkpoint) et persistance `orchestrator/state_store` (SQLite/SeaORM).
-  - Runbook `runbooks/orchestrator_failover.md` couvrant scénarios rollback, partial fill, timeouts.
+  - Service Rust `crates/orchestrator/src/execution_service.rs` ordonnançant SX → Azuro avec TTL SX ≤ 800 ms et TTL Azuro ≤ 2,5 s, bouton pause/safe-stop drain propre et enchaînement hedge alt-line/total si jambe B échoue.
+  - Gestion transactions idempotentes, reprise sur incident (checkpoint) et persistance `orchestrator/state_store` (SQLite/SeaORM) incluant auto-pause si `fill_ratio < 60 %` (fenêtre 20 trades) ou `p95 accept-time > 1 s`.
+  - Runbook `runbooks/orchestrator_failover.md` couvrant partial fills, timeouts, auto-cancel heartbeat et déclenchement mode dégradé.
 evidence:
   - Logs orchestrateur `evidence/orchestrator_run.log` (traces `tracing` JSON) pour 30 scénarios ghost.
   - Tests E2E Rust `crates/orchestrator/tests/execution_service.rs` réussis (`cargo test`).

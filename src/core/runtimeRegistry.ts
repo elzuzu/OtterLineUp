@@ -33,6 +33,7 @@ export type RuntimeTtls = {
   sequencerMs: number;
 };
 
+export type RuntimeRegistryOptions = { ttl: RuntimeTtls; fetchers: RuntimeFetchers; clock?: () => number };
 export type RuntimeRegistryOptions = {
   ttl: RuntimeTtls;
   fetchers: RuntimeFetchers;
@@ -47,8 +48,13 @@ const TIMESTAMP_FIELDS: Array<'fetchedAt' | 'checkedAt'> = ['fetchedAt', 'checke
 const createSlot = <T>(): CacheSlot<T> => ({ entry: null, pending: null });
 
 const extractTimestamp = (value: unknown): number | null => {
-  if (!value || typeof value !== 'object') return null;
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
   for (const field of TIMESTAMP_FIELDS) {
+    const candidate = (value as Record<string, unknown>)[field];
+    if (candidate instanceof Date) {
+      return candidate.getTime();
     if (field in value) {
       const candidate = (value as Record<string, unknown>)[field];
       if (candidate instanceof Date) {
@@ -69,17 +75,15 @@ const computeExpiry = (value: unknown, ttlMs: number, label: string, now: number
   if (age > ttlMs) {
     throw new Error(`RuntimeRegistry: ${label} snapshot stale (age ${age}ms > ttl ${ttlMs}ms)`);
   }
+  return Math.min(now, timestamp) + ttlMs;
   return timestamp + ttlMs;
 };
 
 export class RuntimeRegistry {
   private readonly bankSlot = createSlot<BankSnapshot>();
   private readonly gasSlots = new Map<string, CacheSlot<GasSnapshot>>();
-
   private readonly sxSlot = createSlot<SxMetadataSnapshot>();
-
   private readonly azuroSlot = createSlot<AzuroLimitsSnapshot>();
-
   private readonly seqSlot = createSlot<SequencerStatus>();
   private readonly now: () => number;
 
@@ -100,8 +104,11 @@ export class RuntimeRegistry {
     if (typeof chain !== 'string' || chain.trim().length === 0) {
       throw new Error('RuntimeRegistry: chain required for gas');
     }
-    const slot = this.gasSlots.get(chain) ?? createSlot<GasSnapshot>();
-    this.gasSlots.set(chain, slot);
+    let slot = this.gasSlots.get(chain);
+    if (!slot) {
+      slot = createSlot<GasSnapshot>();
+      this.gasSlots.set(chain, slot);
+    }
     return this.resolve(slot, this.options.ttl.gasMs, () => this.options.fetchers.gas(chain), `gas:${chain}`);
   }
 
@@ -131,9 +138,18 @@ export class RuntimeRegistry {
     this.azuroSlot.pending = null;
     this.seqSlot.entry = null;
     this.seqSlot.pending = null;
+    for (const slot of this.gasSlots.values()) {
+      slot.entry = null;
+      slot.pending = null;
+    }
     this.gasSlots.clear();
   }
 
+  private resolve<T>(slot: CacheSlot<T>, ttlMs: number, loader: () => Promise<T>, label: string): Promise<T> {
+    const entry = slot.entry;
+    const now = this.now();
+    if (entry && entry.expiresAt > now) return Promise.resolve(entry.value);
+    if (slot.pending) return slot.pending;
   private resolve<T>(
     slot: CacheSlot<T>,
     ttlMs: number,
@@ -150,6 +166,10 @@ export class RuntimeRegistry {
     }
     const pending = loader()
       .then((value) => {
+        const refreshedAt = this.now();
+        slot.entry = { value, expiresAt: computeExpiry(value, ttlMs, label, refreshedAt) };
+        const expiry = computeExpiry(value, ttlMs, label, this.now());
+        slot.entry = { value, expiresAt: expiry };
         const completionTime = this.now();
         const expiresAt = computeExpiry(value, ttlMs, label, completionTime);
         slot.entry = { value, expiresAt };

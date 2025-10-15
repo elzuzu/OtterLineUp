@@ -13,7 +13,7 @@ lanes:
     - B0-TKB
   Blocked: []
 meta:
-  updated_at: 2024-07-05T12:00:00Z
+  updated_at: 2024-07-05T18:15:00Z
   owner: lane-gouvernance
 ---
 version: 1
@@ -37,19 +37,19 @@ epics:
           assignee: agent-otter-7
           notes: "Implémentation binaire balance_watcher (poll RuntimeRegistry, alertes < seuil)."
       In_Review:
-        - id: E7-S1a-T1
-          title: "RuntimeRegistry cache banque & métadonnées"
-          type: Task
-          status: In_Review
-          assignee: agent-otter-7
-          notes: "Cache TTL court pour banques, gas, metadata SX/Azuro, sequencer."
         - id: E7-S1b
           title: "Déduplication exports risk policy"
           type: Task
           status: In_Review
           assignee: agent-otter-7
           notes: "Nettoyage index.ts pour éviter les doublons RiskPolicy et rétablir la compilation."
-      Done: []
+      Done:
+        - id: E7-S1a-T1
+          title: "RuntimeRegistry cache banque & métadonnées"
+          type: Task
+          status: Done
+          assignee: agent-otter-7
+          notes: "Cache TTL court pour banques, gas, metadata SX/Azuro, sequencer."
   - id: EPIC-3
     title: "Bankroll & sizing multi-opérateurs"
     owner: lane-risk
@@ -90,19 +90,24 @@ board:
   Backlog: []
   Ready: []
   In_Progress:
+    - epic: EPIC-1
+      ticket: E1-S1
     - epic: EPIC-7
       ticket: E7-S1
     - epic: EPIC-3
       ticket: E3-S1-T4
+    - epic: EPIC-2
+      ticket: E2-S1-T6
     - epic: EPIC-3
       ticket: E3-S1-T5
   In_Review:
     - epic: EPIC-7
       ticket: E7-S1a
     - epic: EPIC-7
-      ticket: E7-S1a-T1
-    - epic: EPIC-7
       ticket: E7-S1b
+  Done:
+    - epic: EPIC-7
+      ticket: E7-S1a-T1
     - epic: EPIC-3
       ticket: E3-S1
     - epic: EPIC-3
@@ -150,6 +155,11 @@ epics:
         assignee: agent-otter-6
         notes: "CamelCase serialization pour simulateQuote + distinction stake/amountToken."
       - id: E6-S1-T4
+        title: "Client TS simulateQuote & garde-fous"
+        type: Task
+        status: In_Progress
+        assignee: agent-otter-6
+        notes: "Surface TypeScript Azuro client avec seuil Δodd, cap payout & validation stake."
         title: "Client TS simulateQuote"
         type: Task
         status: In_Review
@@ -158,6 +168,7 @@ board:
   Ready: []
   In_Progress:
     - E6-S1
+    - E6-S1-T4
   In_Review:
     - E6-S1-T1
     - E6-S1-T2
@@ -299,6 +310,14 @@ epics:
           - "2024-07-06: RwLock-based cache refresh ensuring TTL respect"
     board: { Ready: [], In_Progress: [E5-S1], In_Review: [E5-S1-T1, E5-S1-T4, E5-S1-T5, E5-S1-T6], Done: [], Blocked: [] }
     updated_at: "2024-07-06T18:00:00Z"
+        title: "RuntimeRegistry resolve TTL guards (SX feed)"
+        type: Task
+        status: In_Progress
+        assignee: agent-otter-5
+        notes:
+          - "2024-07-06: Nettoyage resolve() + horloge injectée"
+    board: { Ready: [], In_Progress: [E5-S1, E5-S1-T6], In_Review: [E5-S1-T1, E5-S1-T4, E5-S1-T5], Done: [], Blocked: [] }
+    updated_at: "2024-07-06T13:00:00Z"
 ---
 epics:
   EPIC-2:
@@ -335,16 +354,24 @@ epics:
         assignee: agent-otter-2
         notes:
           - "VaultClient expose writeSecret avec re-auth automatique"
-board:
-  Ready: []
-  In_Progress: []
-  In_Review:
-    - E2-S1-T3
-    - E2-S1-T4
-    - E2-S1-T5
-  Done:
-    - E2-S1
-  Blocked: []
+      - id: E2-S1-T6
+        title: "Lecture metadata secrets KV v2"
+        type: Task
+        status: In_Progress
+        assignee: agent-otter-2
+        notes:
+          - "VaultClient expose getSecretMetadata pour contrôle rotation"
+    board:
+      Ready: []
+      In_Progress:
+        - E2-S1-T6
+      In_Review:
+        - E2-S1-T3
+        - E2-S1-T4
+        - E2-S1-T5
+      Done:
+        - E2-S1
+      Blocked: []
   EPIC-9:
     title: "Exécution & risk engines"
     owner: lane-execution

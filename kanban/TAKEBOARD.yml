@@ -66,3 +66,23 @@ board:
     - BLOCKER-TAKEBOARD
   Blocked: []
 updated_at: "2024-06-10T00:00:00Z"
+---
+epics:
+  EPIC-9:
+    title: "Exécution & risk engines"
+    owner: lane-execution
+    status: In_Progress
+    tickets:
+      - id: E9-S1
+        title: "Convertisseurs de cotes & marge SX↔Azuro"
+        type: Story
+        status: In_Progress
+        assignee: agent-otter-9
+board:
+  Ready: []
+  In_Progress:
+    - E9-S1
+  In_Review: []
+  Done: []
+  Blocked: []
+updated_at: "2024-06-11T00:00:00Z"

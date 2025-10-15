@@ -16,3 +16,53 @@ meta:
   updated_at: 2024-06-11T00:00:00Z
   owner: lane-gouvernance
 ---
+version: 1
+updated: 2024-05-24T00:00:00Z
+epics:
+  - id: EPIC-7
+    title: "Observabilité & QoS transverse"
+    owner: lane-observability
+    status: Ready
+    tickets:
+      Backlog: []
+      Ready:
+        - id: E7-S1
+          title: "QoS mutualisée SX↔Azuro (latence & heartbeat)"
+          ref: kanban/backlog/E7_S1_qos_commun.md
+      In_Progress: []
+      In_Review: []
+      Done: []
+board:
+  Backlog: []
+  Ready:
+    - epic: EPIC-7
+      ticket: E7-S1
+  In_Progress: []
+  In_Review: []
+  Done: []
+epics:
+  EPIC-6:
+    title: "Connecteur Azuro Arbitrum"
+    owner: lane-azuro
+    status: Ready
+    tickets:
+      - id: BLOCKER-TAKEBOARD
+        title: "takeboard/epic missing"
+        type: Blocker
+        status: Done
+        assignee: agent-otter-6
+        notes: "Initialisation du TAKEBOARD pour EPIC-6."
+      - id: E6-S1
+        title: "Client Azuro Liquidity Tree & hedge"
+        type: Story
+        status: Ready
+        assignee: lane-azuro
+board:
+  Ready:
+    - E6-S1
+  In_Progress: []
+  In_Review: []
+  Done:
+    - BLOCKER-TAKEBOARD
+  Blocked: []
+updated_at: "2024-06-10T00:00:00Z"

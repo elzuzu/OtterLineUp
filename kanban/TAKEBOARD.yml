@@ -193,15 +193,23 @@ epics:
         status: In_Review
         assignee: agent-otter-8
         notes: "Implémentation module TS canonicalFingerprint + hashing, export SDK."
+      - id: E8-S1-T3
+        title: "Validation horodatage MarketUID TypeScript"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-8
+        notes:
+          - "2024-07-06: Guard eventTimestamp invalid Date + tests"
     board:
       Ready: []
       In_Progress:
         - E8-S1
       In_Review:
         - E8-S1-T2
+        - E8-S1-T3
       Done: []
       Blocked: []
-    updated_at: "2024-07-05T15:00:00Z"
+    updated_at: "2024-07-06T09:00:00Z"
 epics:
   EPIC-5:
     title: "Connecteur SX Rollup"

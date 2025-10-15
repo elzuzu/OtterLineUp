@@ -28,7 +28,6 @@ export {
   type ComplianceGuardResult,
   type ExecConfigEnvelope,
 } from './ops/complianceGuards.js';
-export { RuntimeRegistry, type RuntimeRegistryOptions, type BankBalance, type GasSnapshot, type SxMetadata, type AzuroLimits, type SequencerHealth } from './core/runtimeRegistry.js';
 export {
   OddsConversionError,
   americanFromDecimal,

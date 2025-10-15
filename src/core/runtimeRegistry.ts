@@ -31,7 +31,6 @@ export class RuntimeRegistry {
       if (!Number.isFinite(ttl) || ttl <= 0) {
         throw new Error(`RuntimeRegistry: ttl.${key} must be > 0`);
       }
-      if (!Number.isFinite(ttl) || ttl <= 0) throw new Error(`RuntimeRegistry: ttl.${key} must be > 0`);
     }
   }
 
@@ -60,36 +59,6 @@ export class RuntimeRegistry {
     return this.resolve(this.seqSlot, this.options.ttl.sequencerMs, this.options.fetchers.sequencer);
   }
 
-  private resolve<T>(slot: CacheSlot<T>, ttlMs: number, loader: () => Promise<T>): Promise<T> {
-    const entry = slot.entry;
-    if (entry && entry.expiresAt > Date.now()) return Promise.resolve(entry.value);
-    if (slot.pending) return slot.pending;
-    const pending = loader().then((value) => {
-      slot.entry = { value, expiresAt: Date.now() + ttlMs };
-      slot.pending = null;
-      return value;
-    }, (error) => {
-      slot.pending = null;
-      throw error;
-    });
-    if (entry && entry.expiresAt > Date.now()) {
-      return Promise.resolve(entry.value);
-    }
-    if (slot.pending) {
-      return slot.pending;
-    }
-    const pending = loader().then(
-      (value) => {
-        slot.entry = { value, expiresAt: Date.now() + ttlMs };
-        slot.pending = null;
-        return value;
-      },
-      (error) => {
-        slot.pending = null;
-        throw error;
-      },
-    );
-
   invalidate(): void {
     this.bankSlot.entry = null;
     this.bankSlot.pending = null;
@@ -105,8 +74,12 @@ export class RuntimeRegistry {
   private resolve<T>(slot: CacheSlot<T>, ttlMs: number, loader: () => Promise<T>): Promise<T> {
     const entry = slot.entry;
     const now = Date.now();
-    if (entry && entry.expiresAt > now) return Promise.resolve(entry.value);
-    if (slot.pending) return slot.pending;
+    if (entry && entry.expiresAt > now) {
+      return Promise.resolve(entry.value);
+    }
+    if (slot.pending) {
+      return slot.pending;
+    }
     const pending = loader()
       .then((value) => {
         slot.entry = { value, expiresAt: Date.now() + ttlMs };

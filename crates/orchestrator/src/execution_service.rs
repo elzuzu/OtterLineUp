@@ -1,5 +1,5 @@
 use crate::config::ExecConfig;
-use std::time::SystemTime;
+use std::{mem::discriminant, time::SystemTime};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct AutoPauseConfig {
@@ -160,19 +160,18 @@ impl AutoPauseTracker {
             .evaluate_with_timestamp(metrics, runtime, evaluated_at);
 
         match decision {
-            Some(ref new_decision)
-                if self
+            Some(ref new_decision) => {
+                let should_emit = self
                     .last_decision
                     .as_ref()
-                    .map(|last| &last.reason)
-                    != Some(&new_decision.reason) =>
-            {
+                    .map(|last| discriminant(&last.reason) != discriminant(&new_decision.reason))
+                    .unwrap_or(true);
                 self.last_decision = Some(new_decision.clone());
-                Some(new_decision.clone())
-            }
-            Some(new_decision) => {
-                self.last_decision = Some(new_decision);
-                None
+                if should_emit {
+                    Some(new_decision.clone())
+                } else {
+                    None
+                }
             }
             None => {
                 self.last_decision = None;

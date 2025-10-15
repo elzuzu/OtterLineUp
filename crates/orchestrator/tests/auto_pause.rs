@@ -138,6 +138,54 @@ fn tracker_emits_only_on_reason_change() {
 }
 
 #[test]
+fn tracker_is_idempotent_for_same_reason_kind() {
+    let exec_cfg = ExecConfig {
+        fill_ratio_min: 0.65,
+        ..ExecConfig::default()
+    };
+    let mut tracker = AutoPauseTracker::from_exec_config(&exec_cfg);
+    let runtime = healthy_runtime();
+
+    let ts1 = SystemTime::UNIX_EPOCH + Duration::from_secs(5);
+    let first = tracker
+        .evaluate(
+            MetricsWindow {
+                fill_ratio: 0.6,
+                p95_accept_time_ms: 700,
+            },
+            runtime,
+            ts1,
+        )
+        .expect("first pause");
+    assert!(matches!(first.reason, AutoPauseReason::FillRatioLow { .. }));
+
+    let ts2 = SystemTime::UNIX_EPOCH + Duration::from_secs(6);
+    assert!(tracker
+        .evaluate(
+            MetricsWindow {
+                fill_ratio: 0.55,
+                p95_accept_time_ms: 720,
+            },
+            runtime,
+            ts2,
+        )
+        .is_none());
+
+    let ts3 = SystemTime::UNIX_EPOCH + Duration::from_secs(7);
+    let latency_pause = tracker
+        .evaluate(
+            MetricsWindow {
+                fill_ratio: 0.7,
+                p95_accept_time_ms: 1_200,
+            },
+            runtime,
+            ts3,
+        )
+        .expect("latency pause");
+    assert!(matches!(latency_pause.reason, AutoPauseReason::AcceptTimeHigh { .. }));
+}
+
+#[test]
 fn tracker_updates_thresholds_from_exec_config() {
     let mut tracker = AutoPauseTracker::from_exec_config(&ExecConfig {
         fill_ratio_min: 0.5,

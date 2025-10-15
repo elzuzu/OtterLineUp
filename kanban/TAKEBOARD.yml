@@ -176,7 +176,7 @@ epics:
       - id: E10-S1-T2
         title: "Auto-pause tracker idempotent"
         type: Task
-        status: In_Progress
+        status: In_Review
         assignee: agent-otter-10
         notes:
           - "2024-07-05: Tracker déduplication des raisons auto-pause + reset recovery"
@@ -184,9 +184,9 @@ epics:
       Ready: []
       In_Progress:
         - E10-S1
-        - E10-S1-T2
       In_Review:
         - E10-S1-T1
+        - E10-S1-T2
   EPIC-8:
     title: "Normalisation marchés & mapping"
     owner: lane-normalisation

@@ -1,0 +1,51 @@
+operator,sport,league,event,market_type,outcome,variant,ladder,event_timestamp,market_uid
+sx,Soccer,Premier League,Arsenal vs Chelsea,moneyline,home,pre,,2024-08-10T16:30:00Z,muid-v1-b05bf41737061f9a2d1595d7
+sx,Soccer,Premier League,Arsenal vs Chelsea,moneyline,away,pre,,2024-08-10T16:30:00Z,muid-v1-35faaad0bc9b621891a4dc7e
+sx,Soccer,Premier League,Arsenal vs Chelsea,moneyline,draw,pre,,2024-08-10T16:30:00Z,muid-v1-026cf097571f584ea96463a6
+sx,Soccer,La Liga,Real Madrid vs Barcelona,moneyline,home,pre,,2024-10-27T20:00:00Z,muid-v1-abc837460d27428ee05f914a
+sx,Soccer,La Liga,Real Madrid vs Barcelona,moneyline,away,pre,,2024-10-27T20:00:00Z,muid-v1-60b944a5e29b6b3cce4082e1
+sx,Soccer,La Liga,Real Madrid vs Barcelona,moneyline,draw,pre,,2024-10-27T20:00:00Z,muid-v1-196b73129e83b93587ca5799
+sx,Soccer,Bundesliga,Bayern vs Dortmund,moneyline,home,pre,,2024-11-09T17:30:00Z,muid-v1-876da760dc56ff5d1dbbd6ee
+sx,Soccer,Bundesliga,Bayern vs Dortmund,moneyline,away,pre,,2024-11-09T17:30:00Z,muid-v1-5c13a223a6f1b9f2b5bc9e8f
+sx,Soccer,Bundesliga,Bayern vs Dortmund,moneyline,draw,pre,,2024-11-09T17:30:00Z,muid-v1-fc9aa3a12294f097f7dc5be0
+sx,Soccer,Serie A,Juventus vs Milan,double_chance,home_or_draw,pre,,2024-09-15T18:45:00Z,muid-v1-d81320e1b4f727d448085bbf
+sx,Soccer,Serie A,Juventus vs Milan,double_chance,draw_or_away,pre,,2024-09-15T18:45:00Z,muid-v1-b566872900109b7e88914ac5
+sx,Soccer,Serie A,Juventus vs Milan,double_chance,home_or_away,pre,,2024-09-15T18:45:00Z,muid-v1-6a9462478b6f0425f870a625
+azuro,Soccer,Ligue 1,PSG vs Marseille,total_goals,over_3.5,pre,0.5,2024-09-29T19:00:00Z,muid-v1-b63c8dccaed5e1e1998c8efa
+azuro,Soccer,Ligue 1,PSG vs Marseille,total_goals,under_3.5,pre,0.5,2024-09-29T19:00:00Z,muid-v1-bd0b5bf940741864851aa470
+sx,Basketball,NBA,Lakers vs Warriors,spread,lakers_-4.5,pre,0.5,2024-11-05T02:00:00Z,muid-v1-d0dc14186d502183320ee941
+sx,Basketball,NBA,Lakers vs Warriors,spread,warriors_+4.5,pre,0.5,2024-11-05T02:00:00Z,muid-v1-2eaddeb947a5badc49ed081f
+azuro,Basketball,NBA,Celtics vs Heat,total_points,over_217.5,pre,0.5,2024-12-01T00:30:00Z,muid-v1-bfe03a503ba3732d09e8457c
+azuro,Basketball,NBA,Celtics vs Heat,total_points,under_217.5,pre,0.5,2024-12-01T00:30:00Z,muid-v1-4816986a4e3aa4a46b5618dd
+sx,Basketball,NBA,Bulls vs Knicks,moneyline,home,pre,,2024-12-15T01:00:00Z,muid-v1-cbbb8c5a0f7f76a7109a0a26
+sx,Basketball,NBA,Bulls vs Knicks,moneyline,away,pre,,2024-12-15T01:00:00Z,muid-v1-0910b823b96838be9a0a22d3
+sx,American Football,NFL,Chiefs vs Bills,spread,chiefs_-2.5,pre,0.5,2024-09-29T20:25:00Z,muid-v1-53fa7896cbacf81174547801
+sx,American Football,NFL,Chiefs vs Bills,spread,bills_+2.5,pre,0.5,2024-09-29T20:25:00Z,muid-v1-75ea5a23927cd89bc37416ae
+azuro,American Football,NFL,49ers vs Eagles,total_points,over_47.5,pre,0.5,2024-10-20T20:25:00Z,muid-v1-00b5e9161a56d91b9e7fe0b3
+azuro,American Football,NFL,49ers vs Eagles,total_points,under_47.5,pre,0.5,2024-10-20T20:25:00Z,muid-v1-c7481507b63bdde33a8ba280
+sx,American Football,NFL,Cowboys vs Giants,moneyline,home,pre,,2024-11-24T21:25:00Z,muid-v1-7edf3a11a0e501c1d5e82a6a
+sx,American Football,NFL,Cowboys vs Giants,moneyline,away,pre,,2024-11-24T21:25:00Z,muid-v1-b2d1dcb2e5717bc6e20e525d
+sx,Tennis,ATP Finals,Djokovic vs Alcaraz,match_winner,djokovic,pre,,2024-11-16T18:00:00Z,muid-v1-6f9b150b0809da70cdad8d31
+sx,Tennis,ATP Finals,Djokovic vs Alcaraz,match_winner,alcaraz,pre,,2024-11-16T18:00:00Z,muid-v1-b8fd89354bec00124817ee5a
+azuro,Tennis,WTA Finals,Swiatek vs Sabalenka,match_winner,swiatek,pre,,2024-11-03T18:30:00Z,muid-v1-130bd5a9bfea9ae67aa0c606
+azuro,Tennis,WTA Finals,Swiatek vs Sabalenka,match_winner,sabalenka,pre,,2024-11-03T18:30:00Z,muid-v1-8eb9317a534b3d8fffd6ba25
+azuro,Ice Hockey,NHL,Maple Leafs vs Bruins,moneyline,home,pre,,2024-12-12T00:30:00Z,muid-v1-9cea6bf2350ddee1fac6502c
+azuro,Ice Hockey,NHL,Maple Leafs vs Bruins,moneyline,away,pre,,2024-12-12T00:30:00Z,muid-v1-6c21fa593cc5647108416f11
+sx,Ice Hockey,NHL,Rangers vs Lightning,total_goals,over_6.5,pre,0.5,2024-12-18T00:00:00Z,muid-v1-2f29229d71850d098875d0bb
+sx,Ice Hockey,NHL,Rangers vs Lightning,total_goals,under_6.5,pre,0.5,2024-12-18T00:00:00Z,muid-v1-6641272b1f61ef75e75965ac
+sx,Baseball,MLB,Yankees vs Red Sox,moneyline,home,pre,,2024-07-14T23:05:00Z,muid-v1-0320033084dce2d8fa88d48f
+sx,Baseball,MLB,Yankees vs Red Sox,moneyline,away,pre,,2024-07-14T23:05:00Z,muid-v1-a9a498f9ce59a3e678c2bd0d
+azuro,Baseball,MLB,Dodgers vs Giants,total_runs,over_8.5,pre,0.5,2024-09-01T02:10:00Z,muid-v1-ccee5b39c02e8f0d4ce542c3
+azuro,Baseball,MLB,Dodgers vs Giants,total_runs,under_8.5,pre,0.5,2024-09-01T02:10:00Z,muid-v1-a3fbbc9bcfdc4a798e9a2df4
+azuro,Cricket,IPL,Mumbai Indians vs CSK,moneyline,home,pre,,2025-04-07T14:00:00Z,muid-v1-d8ac39dd7aa567396d1ebc13
+azuro,Cricket,IPL,Mumbai Indians vs CSK,moneyline,away,pre,,2025-04-07T14:00:00Z,muid-v1-c2db9b61a535e6c1b7116d5d
+sx,Cricket,IPL,RCB vs KKR,total_runs,over_340.5,pre,1.0,2025-04-10T14:00:00Z,muid-v1-034e1c69fa010ca6a30fe45a
+sx,Cricket,IPL,RCB vs KKR,total_runs,under_340.5,pre,1.0,2025-04-10T14:00:00Z,muid-v1-71784f6b391c8e69c8a07088
+sx,Rugby,Top 14,Toulouse vs La Rochelle,handicap,toulouse_-6.5,pre,0.5,2024-09-21T18:05:00Z,muid-v1-b585c72936322a429c44f8ac
+sx,Rugby,Top 14,Toulouse vs La Rochelle,handicap,la_rochelle_+6.5,pre,0.5,2024-09-21T18:05:00Z,muid-v1-83cecfd9dbb237e9940a84cb
+azuro,Rugby,URC,Leinster vs Munster,moneyline,home,pre,,2024-11-02T19:35:00Z,muid-v1-6d2ef44e0f0fdcf9bb45c7eb
+azuro,Rugby,URC,Leinster vs Munster,moneyline,away,pre,,2024-11-02T19:35:00Z,muid-v1-9975e54db998fe0f985bfc20
+sx,Esports,LoL Worlds,T1 vs G2,match_winner,t1,pre,,2024-10-12T12:00:00Z,muid-v1-e750a9fd56c1bb287534d4fa
+sx,Esports,LoL Worlds,T1 vs G2,match_winner,g2,pre,,2024-10-12T12:00:00Z,muid-v1-536f08bb8924caa2ed7d6864
+sx,MMA,UFC 305,Adesanya vs Du Plessis,fight_winner,adesanya,pre,,2024-08-18T04:00:00Z,muid-v1-2cf500730d185cf8d969a5fb
+sx,MMA,UFC 305,Adesanya vs Du Plessis,fight_winner,du_plessis,pre,,2024-08-18T04:00:00Z,muid-v1-5473602e52e8aff3a7b3f734

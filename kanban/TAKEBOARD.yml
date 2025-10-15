@@ -171,7 +171,7 @@ epics:
       - id: E2-S1
         title: "Coffre-fort & rotation des clés SX/Azuro"
         type: Story
-        status: In_Review
+        status: Done
         assignee: agent-otter-2
         notes:
           - "Vault policies extended, CI smoke wired"
@@ -179,8 +179,10 @@ epics:
 board:
   Ready: []
   In_Progress: []
-  In_Review:
+  In_Review: []
+  Done:
     - E2-S1
+  Blocked: []
   EPIC-9:
     title: "Exécution & risk engines"
     owner: lane-execution

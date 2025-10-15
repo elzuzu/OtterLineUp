@@ -162,6 +162,7 @@ epics:
         notes:
           - "Auto-pause controller implémenté (évaluation fill-ratio/p95/sequencer)"
           - "2024-06-30: Raison d'auto-pause exposée en labels pour instrumentation"
+          - "2024-07-05: Codes erreur standard ajoutés pour auto-pause orchestrateur"
       - id: E10-S1-T1
         title: "Auto-pause decision struct & horodatage"
         type: Task

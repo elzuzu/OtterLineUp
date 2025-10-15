@@ -65,6 +65,20 @@ fn metric_label_maps_reason_to_static_key() {
 }
 
 #[test]
+fn error_code_maps_reason_to_standard_code() {
+    assert_eq!(AutoPauseReason::SequencerDown.error_code(), "E-RUNTIME-SEQUENCER");
+    assert_eq!(AutoPauseReason::SxRpcDown.error_code(), "E-RUNTIME-SX-RPC");
+    assert_eq!(
+        AutoPauseReason::FillRatioLow { fill_ratio: 0.5, min: 0.6 }.error_code(),
+        "E-QOS-FILL-RATIO"
+    );
+    assert_eq!(
+        AutoPauseReason::AcceptTimeHigh { p95_ms: 1_200, max_ms: 900 }.error_code(),
+        "E-QOS-ACCEPT-LATENCY"
+    );
+}
+
+#[test]
 fn evaluate_with_timestamp_wraps_reason_and_time() {
     let controller = AutoPauseController::new(AutoPauseConfig {
         fill_ratio_min: 0.65,

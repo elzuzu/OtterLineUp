@@ -9,7 +9,6 @@ export {
   type StopLossEvaluation,
 } from './core/riskPolicy.js';
 export { MetricsTracker, type MetricsSnapshot, type TradeSample } from './ops/metrics.js';
-export { RiskPolicy, type OddsSlippagePolicy, type RiskSnapshot, type StakeDecision, type StakeParameters, type StopLossRule } from './core/riskPolicy.js';
 export { RuntimeRegistry, type RuntimeRegistryOptions, type BankBalance, type GasSnapshot, type SxMetadata, type AzuroLimits, type SequencerHealth } from './core/runtimeRegistry.js';
 export {
   OddsConversionError,
@@ -26,3 +25,10 @@ export {
   type NetMarginBreakdown,
 } from './core/odds.js';
 export { VaultClient, type VaultClientOptions, type VaultSecret, VaultError } from './core/vaultClient.js';
+export {
+  canonicalFingerprint,
+  marketUidFromIdentifier,
+  MarketUidError,
+  type MarketIdentifier,
+  type MarketUid,
+} from './core/marketUid.js';

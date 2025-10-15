@@ -1,3 +1,8 @@
+#![forbid(unsafe_code)]
+
+pub mod error;
+
+pub use error::{AzuroError, AzuroErrorCode};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;

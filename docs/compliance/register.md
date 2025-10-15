@@ -33,11 +33,20 @@
 - Interdiction override manuel hors plan approuvé compliance.
 - Ajuster limites si fill_ratio < 60 % sur 20 trades ou p95_accept_time > 1000 ms (auto-pause compliance + risk).
 
+
+## Processus d’escalade Void / Erreur palpable
+- Détection enregistrée dans `ops/incidents/void_events.csv` (Ops on-call).
+- Safe-stop via orchestrateur (`exec/exec.ts`) sous 5 min, auto-pause marchés liés.
+- Analyse exposition + Δcote post-impact (Risk) et décision Compliance sous 30 min.
+- Remédiation (drain, remboursement, justification) complétée < 45 min avec log des transactions.
+- Rapport final < 60 min via `ops/incidents/void_template.md`, validation Legal & Risk.
+- Contacts escalade : legal@otterlineup.ch / risk@otterlineup.ch / ops@otterlineup.ch.
+
 ## Processus opérationnels
 - **Journalisation** : tous ordres signés via HSM, audit trail stocké dans `ops/logs/` (rotation 7 jours).
 - **Hot-reload configs** : config/{risk.yml, exec.yml, chains.yml, providers/*.yml, rulepacks/*.yml} surveillés; modifications logguées avec auteur, motif et validation compliance.
-- **Runbooks liés** : `runbooks/void_escalation.md`, `ops/incidents/void_template.md`.
-- **Contrôles périodiques** : revue mensuelle compliance avec Legal, check-lists cross-lane, rapport incidents.
+- **Runbooks liés** : `runbooks/void_escalation.md`, `ops/incidents/void_template.md` (SLA < 60 min, contacts consignés).
+- **Contrôles périodiques** : revue mensuelle compliance avec Legal, check-lists cross-lane, rapport incidents (audit : `docs/compliance/audit_checklist.md`).
 
 ## Annexe contrôle accès
 | Rôle | Responsabilités | Accès autorisés | Contact |

@@ -2,7 +2,7 @@ use std::{sync::Arc, time::{Duration, Instant}};
 
 use async_trait::async_trait;
 use thiserror::Error;
-use tokio::time;
+use tokio::{sync::RwLock, time};
 
 pub type Result<T> = std::result::Result<T, SxClientError>;
 
@@ -12,24 +12,23 @@ pub struct SxClient {
     metadata: Arc<dyn MetadataProvider>,
     quotes: Arc<dyn QuoteSource>,
     executor: Arc<dyn OrderExecutor>,
+    cached_metadata: Arc<RwLock<Option<SxMetadata>>>,
 }
 
 impl SxClient {
     pub fn new(ttl: Duration, metadata: Arc<dyn MetadataProvider>, quotes: Arc<dyn QuoteSource>, executor: Arc<dyn OrderExecutor>) -> Self {
-        Self { ttl, metadata, quotes, executor }
+        Self { ttl, metadata, quotes, executor, cached_metadata: Arc::new(RwLock::new(None)) }
     }
 
     pub async fn get_best_quote(&self, request: QuoteRequest) -> Result<Quote> {
-        let meta = self.metadata.latest().await?;
-        self.ensure_metadata(&meta)?;
+        let meta = self.load_metadata().await?;
         let mut quote = self.quotes.best_quote(&request).await?;
         quote.odds = align_to_ladder(quote.odds, meta.odds_ladder_step)?;
         Ok(quote)
     }
 
     pub async fn place_bet(&self, request: BetRequest) -> Result<BetExecution> {
-        let meta = self.metadata.latest().await?;
-        self.ensure_metadata(&meta)?;
+        let meta = self.load_metadata().await?;
         if request.odds_slippage > meta.max_odds_slippage {
             return Err(SxClientError::SlippageExceeded { requested: request.odds_slippage, max: meta.max_odds_slippage });
         }
@@ -52,6 +51,26 @@ impl SxClient {
             OrderStatus::Void
         };
         Ok(BetExecution { status, fills: response.fills, requested_stake: request.stake, remaining_stake: remaining })
+    }
+
+    async fn load_metadata(&self) -> Result<SxMetadata> {
+        if let Some(meta) = self.cached_metadata.read().await.clone() {
+            if self.ensure_metadata(&meta).is_ok() {
+                return Ok(meta);
+            }
+        }
+
+        let fresh = self.metadata.latest().await?;
+        self.ensure_metadata(&fresh)?;
+
+        let mut guard = self.cached_metadata.write().await;
+        if let Some(meta) = guard.as_ref() {
+            if self.ensure_metadata(meta).is_ok() {
+                return Ok(meta.clone());
+            }
+        }
+        *guard = Some(fresh.clone());
+        Ok(fresh)
     }
 
     fn ensure_metadata(&self, metadata: &SxMetadata) -> Result<()> {
@@ -126,13 +145,37 @@ fn align_to_ladder(odds: f64, step: f64) -> Result<f64> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::Arc;
+    use std::sync::{Arc, Mutex};
+    use std::sync::atomic::{AtomicUsize, Ordering};
 
     #[derive(Clone)]
     struct StaticMetadata(SxMetadata);
     #[async_trait]
     impl MetadataProvider for StaticMetadata {
         async fn latest(&self) -> Result<SxMetadata> { Ok(self.0.clone()) }
+    }
+
+    #[derive(Clone)]
+    struct SequenceMetadata {
+        calls: Arc<AtomicUsize>,
+        snapshots: Arc<Mutex<Vec<SxMetadata>>>,
+    }
+
+    impl SequenceMetadata {
+        fn new(snapshots: Vec<SxMetadata>) -> Self {
+            Self { calls: Arc::new(AtomicUsize::new(0)), snapshots: Arc::new(Mutex::new(snapshots)) }
+        }
+
+        fn call_count(&self) -> usize { self.calls.load(Ordering::SeqCst) }
+    }
+
+    #[async_trait]
+    impl MetadataProvider for SequenceMetadata {
+        async fn latest(&self) -> Result<SxMetadata> {
+            let idx = self.calls.fetch_add(1, Ordering::SeqCst);
+            let snapshots = self.snapshots.lock().expect("snapshots");
+            Ok(snapshots.get(idx).cloned().unwrap_or_else(|| snapshots.last().expect("at least one snapshot").clone()))
+        }
     }
 
     #[derive(Clone)]
@@ -184,7 +227,11 @@ mod tests {
     }
 
     fn client(meta: SxMetadata, quote: Arc<dyn QuoteSource>, exec: Arc<dyn OrderExecutor>) -> SxClient {
-        SxClient::new(Duration::from_secs(60), Arc::new(StaticMetadata(meta)), quote, exec)
+        client_with_ttl(Duration::from_secs(60), meta, quote, exec)
+    }
+
+    fn client_with_ttl(ttl: Duration, meta: SxMetadata, quote: Arc<dyn QuoteSource>, exec: Arc<dyn OrderExecutor>) -> SxClient {
+        SxClient::new(ttl, Arc::new(StaticMetadata(meta)), quote, exec)
     }
 
     #[tokio::test]
@@ -249,5 +296,26 @@ mod tests {
         let client = client(metadata, Arc::new(StaticQuote(Quote { market_uid: "m1".into(), side: "back".into(), odds: 1.9, available_stake: 0.0 })), Arc::new(StaticExecutor(OrderResponse { status: OrderStatus::Accepted, fills: vec![] })));
         let result = client.get_best_quote(QuoteRequest { market_uid: "m1".into(), side: "back".into(), stake: 10.0 }).await;
         assert!(matches!(result, Err(SxClientError::MetadataStale { .. })));
+    }
+
+    #[tokio::test]
+    async fn metadata_is_cached_until_ttl_expires() {
+        let quote = Arc::new(StaticQuote(Quote { market_uid: "m1".into(), side: "back".into(), odds: 1.9, available_stake: 50.0 }));
+        let exec = Arc::new(StaticExecutor(OrderResponse { status: OrderStatus::Accepted, fills: vec![] }));
+        let now = Instant::now();
+        let snapshots = vec![
+            SxMetadata { fetched_at: now, ..base_metadata() },
+            SxMetadata { fetched_at: now + Duration::from_millis(20), ..base_metadata() },
+        ];
+        let provider = SequenceMetadata::new(snapshots);
+        let client = SxClient::new(Duration::from_millis(15), Arc::new(provider.clone()), quote.clone(), exec.clone());
+
+        client.get_best_quote(QuoteRequest { market_uid: "m1".into(), side: "back".into(), stake: 10.0 }).await.expect("first quote");
+        client.get_best_quote(QuoteRequest { market_uid: "m1".into(), side: "back".into(), stake: 10.0 }).await.expect("second quote");
+        assert_eq!(provider.call_count(), 1, "metadata should be cached within TTL");
+
+        time::sleep(Duration::from_millis(16)).await;
+        client.get_best_quote(QuoteRequest { market_uid: "m1".into(), side: "back".into(), stake: 10.0 }).await.expect("third quote");
+        assert_eq!(provider.call_count(), 2, "metadata should refresh after TTL");
     }
 }

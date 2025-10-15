@@ -302,6 +302,14 @@ epics:
         notes:
           - "2024-07-05: Cache metadata snapshots in SxClient with TTL guard"
       - id: E5-S1-T6
+        title: "SxClient async metadata cache eviction"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-5
+        notes:
+          - "2024-07-06: RwLock-based cache refresh ensuring TTL respect"
+    board: { Ready: [], In_Progress: [E5-S1], In_Review: [E5-S1-T1, E5-S1-T4, E5-S1-T5, E5-S1-T6], Done: [], Blocked: [] }
+    updated_at: "2024-07-06T18:00:00Z"
         title: "RuntimeRegistry resolve TTL guards (SX feed)"
         type: Task
         status: In_Progress

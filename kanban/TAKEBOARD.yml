@@ -96,6 +96,8 @@ board:
       ticket: E7-S1
     - epic: EPIC-3
       ticket: E3-S1-T4
+    - epic: EPIC-2
+      ticket: E2-S1-T6
     - epic: EPIC-3
       ticket: E3-S1-T5
   In_Review:
@@ -344,16 +346,24 @@ epics:
         assignee: agent-otter-2
         notes:
           - "VaultClient expose writeSecret avec re-auth automatique"
-board:
-  Ready: []
-  In_Progress: []
-  In_Review:
-    - E2-S1-T3
-    - E2-S1-T4
-    - E2-S1-T5
-  Done:
-    - E2-S1
-  Blocked: []
+      - id: E2-S1-T6
+        title: "Lecture metadata secrets KV v2"
+        type: Task
+        status: In_Progress
+        assignee: agent-otter-2
+        notes:
+          - "VaultClient expose getSecretMetadata pour contrôle rotation"
+    board:
+      Ready: []
+      In_Progress:
+        - E2-S1-T6
+      In_Review:
+        - E2-S1-T3
+        - E2-S1-T4
+        - E2-S1-T5
+      Done:
+        - E2-S1
+      Blocked: []
   EPIC-9:
     title: "Exécution & risk engines"
     owner: lane-execution

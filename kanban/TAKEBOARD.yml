@@ -118,6 +118,7 @@ epics:
         assignee: agent-otter-10
         notes:
           - "Auto-pause controller implémenté (évaluation fill-ratio/p95/sequencer)"
+          - "2024-06-30: Raison d'auto-pause exposée en labels pour instrumentation"
 board:
   Ready: []
   In_Progress:

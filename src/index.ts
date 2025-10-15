@@ -9,6 +9,10 @@ export {
   type QuoteSimulation as AzuroQuoteSimulation,
   type QuoteEngine as AzuroQuoteEngine,
   type LimitsProvider as AzuroLimitsProvider,
+  type AzuroQuoteRequest,
+  type AzuroQuoteResponse,
+  type AzuroQuoteSimulation,
+  type QuoteEngine,
 } from './clients/azuroClient.js';
 export {
   RuntimeRegistry,

@@ -1,7 +1,7 @@
 use orchestrator::config::ExecConfig;
 use orchestrator::execution_service::{
     AutoPauseConfig, AutoPauseController, AutoPauseDecision, AutoPauseReason, AutoPauseTracker,
-    MetricsWindow, RuntimeHealth,
+    ExecutionService, MetricsWindow, RuntimeHealth,
 };
 use std::time::{Duration, SystemTime};
 
@@ -219,4 +219,74 @@ fn tracker_updates_thresholds_from_exec_config() {
         )
         .expect("pause on slow accept time");
     assert!(matches!(pause.reason, AutoPauseReason::AcceptTimeHigh { .. }));
+}
+
+#[test]
+fn execution_service_sets_pause_status_on_decision() {
+    let exec_cfg = ExecConfig {
+        fill_ratio_min: 0.65,
+        ..ExecConfig::default()
+    };
+    let mut service = ExecutionService::from_exec_config(&exec_cfg);
+    assert!(!service.status().is_paused());
+
+    let decision = service
+        .observe_metrics(
+            MetricsWindow {
+                fill_ratio: 0.6,
+                p95_accept_time_ms: 700,
+            },
+            healthy_runtime(),
+            SystemTime::UNIX_EPOCH + Duration::from_secs(15),
+        )
+        .expect("auto-pause decision");
+
+    assert!(service.status().is_paused());
+    assert_eq!(
+        service
+            .status()
+            .last_decision()
+            .map(|d| d.reason.error_code()),
+        Some(decision.reason.error_code())
+    );
+    assert_eq!(
+        service
+            .status()
+            .last_decision()
+            .map(|d| d.metric_label()),
+        Some(decision.metric_label())
+    );
+}
+
+#[test]
+fn execution_service_resume_clears_state_and_allows_new_pause() {
+    let mut service = ExecutionService::from_exec_config(&ExecConfig::default());
+    let runtime = healthy_runtime();
+    let pause_metrics = MetricsWindow {
+        fill_ratio: 0.5,
+        p95_accept_time_ms: 700,
+    };
+
+    let first = service
+        .observe_metrics(pause_metrics, runtime, SystemTime::UNIX_EPOCH)
+        .expect("first pause");
+    assert!(matches!(first.reason, AutoPauseReason::FillRatioLow { .. }));
+    assert!(service.status().is_paused());
+
+    service.resume();
+    assert!(!service.status().is_paused());
+    assert!(service.status().last_decision().is_none());
+
+    let second = service
+        .observe_metrics(
+            MetricsWindow {
+                fill_ratio: 0.7,
+                p95_accept_time_ms: 1_200,
+            },
+            runtime,
+            SystemTime::UNIX_EPOCH + Duration::from_secs(1),
+        )
+        .expect("latency pause");
+    assert!(matches!(second.reason, AutoPauseReason::AcceptTimeHigh { .. }));
+    assert!(service.status().is_paused());
 }

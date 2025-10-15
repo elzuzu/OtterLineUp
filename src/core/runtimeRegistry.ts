@@ -31,7 +31,27 @@ export type RuntimeRegistryOptions = { ttl: RuntimeTtls; fetchers: RuntimeFetche
 type CacheEntry<T> = { value: T; expiresAt: number };
 type CacheSlot<T> = { entry: CacheEntry<T> | null; pending: Promise<T> | null };
 
+const TIMESTAMP_FIELDS: Array<'fetchedAt' | 'checkedAt'> = ['fetchedAt', 'checkedAt'];
 const createSlot = <T>(): CacheSlot<T> => ({ entry: null, pending: null });
+const extractTimestamp = (value: unknown): number | null => {
+  if (!value || typeof value !== 'object') return null;
+  for (const field of TIMESTAMP_FIELDS) {
+    if (field in value) {
+      const candidate = (value as Record<string, unknown>)[field];
+      if (candidate instanceof Date) return candidate.getTime();
+    }
+  }
+  return null;
+};
+
+const computeExpiry = (value: unknown, ttlMs: number, label: string): number => {
+  const timestamp = extractTimestamp(value);
+  if (timestamp === null) throw new Error(`RuntimeRegistry: ${label} snapshot missing timestamp`);
+  const now = Date.now();
+  const age = now - timestamp;
+  if (age > ttlMs) throw new Error(`RuntimeRegistry: ${label} snapshot stale (age ${age}ms > ttl ${ttlMs}ms)`);
+  return Math.min(now, timestamp) + ttlMs;
+};
 
 export class RuntimeRegistry {
   private readonly bankSlot = createSlot<BankSnapshot>();
@@ -53,7 +73,7 @@ export class RuntimeRegistry {
   }
 
   async getBank(): Promise<BankSnapshot> {
-    return this.resolve(this.bankSlot, this.options.ttl.bankMs, this.options.fetchers.bank);
+    return this.resolve(this.bankSlot, this.options.ttl.bankMs, this.options.fetchers.bank, 'bank');
   }
 
   async getGas(chain: string): Promise<GasSnapshot> {
@@ -62,19 +82,19 @@ export class RuntimeRegistry {
     }
     const slot = this.gasSlots.get(chain) ?? createSlot<GasSnapshot>();
     this.gasSlots.set(chain, slot);
-    return this.resolve(slot, this.options.ttl.gasMs, () => this.options.fetchers.gas(chain));
+    return this.resolve(slot, this.options.ttl.gasMs, () => this.options.fetchers.gas(chain), `gas:${chain}`);
   }
 
   async getSxMetadata(): Promise<SxMetadataSnapshot> {
-    return this.resolve(this.sxSlot, this.options.ttl.sxMetadataMs, this.options.fetchers.sxMetadata);
+    return this.resolve(this.sxSlot, this.options.ttl.sxMetadataMs, this.options.fetchers.sxMetadata, 'sxMetadata');
   }
 
   async getAzuroLimits(): Promise<AzuroLimitsSnapshot> {
-    return this.resolve(this.azuroSlot, this.options.ttl.azuroLimitsMs, this.options.fetchers.azuroLimits);
+    return this.resolve(this.azuroSlot, this.options.ttl.azuroLimitsMs, this.options.fetchers.azuroLimits, 'azuroLimits');
   }
 
   async sequencerHealth(): Promise<SequencerStatus> {
-    return this.resolve(this.seqSlot, this.options.ttl.sequencerMs, this.options.fetchers.sequencer);
+    return this.resolve(this.seqSlot, this.options.ttl.sequencerMs, this.options.fetchers.sequencer, 'sequencer');
   }
 
   private resolve<T>(slot: CacheSlot<T>, ttlMs: number, loader: () => Promise<T>): Promise<T> {
@@ -130,14 +150,14 @@ export class RuntimeRegistry {
     this.gasSlots.clear();
   }
 
-  private resolve<T>(slot: CacheSlot<T>, ttlMs: number, loader: () => Promise<T>): Promise<T> {
+  private resolve<T>(slot: CacheSlot<T>, ttlMs: number, loader: () => Promise<T>, label: string): Promise<T> {
     const entry = slot.entry;
     const now = Date.now();
     if (entry && entry.expiresAt > now) return Promise.resolve(entry.value);
     if (slot.pending) return slot.pending;
     const pending = loader()
       .then((value) => {
-        slot.entry = { value, expiresAt: Date.now() + ttlMs };
+        slot.entry = { value, expiresAt: computeExpiry(value, ttlMs, label) };
         slot.pending = null;
         return value;
       })

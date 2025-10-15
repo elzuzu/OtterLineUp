@@ -37,3 +37,10 @@ export {
   type NetMarginBreakdown,
 } from './core/odds.js';
 export { VaultClient, type VaultClientOptions, type VaultSecret, VaultError } from './core/vaultClient.js';
+export {
+  canonicalFingerprint,
+  marketUidFromIdentifier,
+  MarketUidError,
+  type MarketIdentifier,
+  type MarketUid,
+} from './core/marketUid.js';

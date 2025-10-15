@@ -161,8 +161,21 @@ epics:
           - "2024-06-30: Schéma MarketUID documenté (docs/mapping/market_uid.md)."
           - "2024-07-01: Propriétés génératives ajoutées (uid/dedup) + proptest."
           - "2024-07-02: Dataset seed 50 marchés versionné (data/market_uid_seed.csv)."
-    board: { Ready: [], In_Progress: [E8-S1], In_Review: [], Done: [], Blocked: [] }
-    updated_at: "2024-07-01T12:00:00Z"
+      - id: E8-S1-T2
+        title: "Générateur MarketUID TypeScript & export SDK"
+        type: Task
+        status: In_Progress
+        assignee: agent-otter-8
+        notes: "Implémentation module TS canonicalFingerprint + hashing, export SDK."
+    board:
+      Ready: []
+      In_Progress:
+        - E8-S1
+        - E8-S1-T2
+      In_Review: []
+      Done: []
+      Blocked: []
+    updated_at: "2024-07-05T12:30:00Z"
 epics:
   EPIC-5:
     title: "Connecteur SX Rollup"

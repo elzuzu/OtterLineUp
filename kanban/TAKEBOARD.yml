@@ -71,6 +71,8 @@ board:
   In_Progress:
     - epic: EPIC-7
       ticket: E7-S1
+    - epic: EPIC-2
+      ticket: E2-S1-T4
   In_Review:
     - epic: EPIC-7
       ticket: E7-S1a
@@ -200,9 +202,17 @@ epics:
         assignee: agent-otter-2
         notes:
           - "Auto-réauth sur invalidation token et couverture tests node:test"
+      - id: E2-S1-T4
+        title: "Audit secrets_smoke → logs/secrets_audit.json"
+        type: Task
+        status: In_Progress
+        assignee: agent-otter-2
+        notes:
+          - "Automatiser append audit JSON depuis scripts/vault_smoke.sh"
 board:
   Ready: []
-  In_Progress: []
+  In_Progress:
+    - E2-S1-T4
   In_Review:
     - E2-S1-T3
   Done:

@@ -56,4 +56,5 @@ m_net = 1 - (1 / o_SX) - (1 / o_AZU) - fees_gas - fees_proto - slip_post_impact
 2. Confirmer que les wallets `sx_rollup` et `arbitrum_one` sont alimentés.
 3. S'assurer que les RPC/WS répondent < latence cible avant de lever l'auto-pause.
 4. Logger chaque run `m_net`, fill ratio et Δquote→fill dans `ops/metrics`.
+5. Exporter la sortie `cargo run --bin healthcheck` vers `evidence/` en définissant `HEALTHCHECK_LOG_DIR=evidence/`.
 

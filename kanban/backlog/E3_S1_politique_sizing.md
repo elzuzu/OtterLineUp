@@ -22,7 +22,7 @@ evidence:
   - CR de revue risk signé (commentaires résolus) incluant capture reload à chaud (`ConfigManager` log) et tests stop-loss `%` vs absolu.
 tasks:
   - Collecter historiques fills/limits SX & Azuro (API quotas) pour calibrage et intégrer conversions USD via oracles chainlink/off-chain signés.
-  - Construire `config/risk.yml` (bank_source, stake min/max, ligues interdites, `oddsSlippage` bornes, hedge policy) + `defaults.yml`, brancher le watcher solde et mettre en place reload à chaud via `ConfigManager` (watcher FS, validation schema Zod/JSON-Schema).
+  - Construire `config/risk.yml` (bank_source, stake min/max, ligues interdites, `oddsSlippage` bornes, hedge policy) + `defaults.yml`, brancher le watcher solde et mettre en place reload à chaud via `ConfigManager` (watcher FS, validation de schéma Rust `schemars`/`serde_json`).
   - Documenter méthodologie dans `docs/risk/sizing.md` avec exemples chiffrés, rappel alerte solde `< 15 USD`, description precedence CLI > ENV > fichiers > defaults et procédure de dry-run avant bascule.
 observability:
   - KPIs : taux de fills complets, ratio m_net réalisé vs cible, variance P&L.

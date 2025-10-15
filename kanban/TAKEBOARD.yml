@@ -39,12 +39,12 @@ epics:
     tickets:
       Backlog: []
       Ready: []
-      In_Progress:
+      In_Progress: []
+      In_Review:
         - id: E3-S1
           title: "Politique de sizing & limites SX↔Azuro"
           assignee: agent-otter-3
           notes: ["2024-06-12: Implémentation RiskPolicy TypeScript + configs risk/defaults"]
-      In_Review: []
       Done: []
 board:
   Backlog: []
@@ -52,10 +52,9 @@ board:
   In_Progress:
     - epic: EPIC-7
       ticket: E7-S1
-  In_Progress:
+  In_Review:
     - epic: EPIC-3
       ticket: E3-S1
-  In_Review: []
   Done: []
 epics:
   EPIC-6:

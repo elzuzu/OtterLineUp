@@ -17,6 +17,7 @@ const thresholds = {
   maxDeltaQuoteToFill: 0.02,
   minNetMarginPct: 0.015,
   minSampleSize: 10,
+  maxVoidRate: 0.1,
 };
 
 const healthy = evaluateMetricsCompliance(baseSnapshot, thresholds);
@@ -50,6 +51,13 @@ const breachMargin = evaluateMetricsCompliance(
 );
 console.assert(breachMargin.shouldPause, 'low net margin should trigger pause');
 console.assert(breachMargin.violations.includes('net_margin_below_threshold'), 'missing net margin violation');
+
+const breachVoidRate = evaluateMetricsCompliance(
+  { ...baseSnapshot, voidRate: 0.25 },
+  thresholds,
+);
+console.assert(breachVoidRate.shouldPause, 'high void rate should trigger pause');
+console.assert(breachVoidRate.violations.includes('void_rate_above_threshold'), 'missing void rate violation');
 
 const insufficientSamples = evaluateMetricsCompliance(
   { ...baseSnapshot, count: 5 },

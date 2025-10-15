@@ -246,6 +246,13 @@ epics:
         type: Task
         status: Done
         assignee: agent-otter-4
+      - id: E4-S3
+        title: "Seuil void rate compliance"
+        type: Task
+        status: Done
+        assignee: agent-otter-4
+        notes:
+          - "Auto-pause void rate threshold intégré dans complianceGuards."
     board:
       Ready: []
       In_Progress: []
@@ -253,5 +260,6 @@ epics:
       Done:
         - E4-S1
         - E4-S2
+        - E4-S3
       Blocked: []
-updated_at: "2024-07-01T00:00:00Z"
+updated_at: "2024-07-01T13:00:00Z"

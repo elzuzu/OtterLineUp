@@ -6,6 +6,7 @@ export interface ComplianceThresholds {
   maxDeltaQuoteToFill: number;
   minNetMarginPct: number;
   minSampleSize?: number;
+  maxVoidRate?: number;
 }
 
 export interface ComplianceGuardResult {
@@ -29,6 +30,7 @@ export function evaluateMetricsCompliance(
     maxDeltaQuoteToFill,
     minNetMarginPct,
     minSampleSize = 1,
+    maxVoidRate,
   } = thresholds;
 
   const violations: string[] = [];
@@ -61,6 +63,12 @@ export function evaluateMetricsCompliance(
 
   if (!isFiniteNumber(snapshot.voidRate) || snapshot.voidRate < 0) {
     violations.push('invalid_void_rate');
+  } else if (
+    maxVoidRate !== undefined &&
+    isFiniteNumber(maxVoidRate) &&
+    snapshot.voidRate > maxVoidRate
+  ) {
+    violations.push('void_rate_above_threshold');
   }
 
   return { shouldPause: violations.length > 0, violations, metrics: snapshot };

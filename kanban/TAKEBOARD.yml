@@ -161,12 +161,15 @@ epics:
       - id: E2-S1
         title: "Coffre-fort & rotation des clés SX/Azuro"
         type: Story
-        status: In_Progress
+        status: In_Review
         assignee: agent-otter-2
-        notes: "Vault policies extended, CI smoke wired"
+        notes:
+          - "Vault policies extended, CI smoke wired"
+          - "2024-06-12: Vault AppRole client TS ready for review"
 board:
   Ready: []
-  In_Progress:
+  In_Progress: []
+  In_Review:
     - E2-S1
   EPIC-9:
     title: "Exécution & risk engines"

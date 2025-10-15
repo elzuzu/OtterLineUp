@@ -15,6 +15,7 @@ Ce backlog est structuré pour un travail parallèle de **10 lanes** (un agent p
 | E8 | EPIC-8 — Normalisation marchés & mapping | UID commun, dictionnaires, rulepacks | lane-normalisation |
 | E9 | EPIC-9 — Exécution & risk engines | Conversion cotes, slippage, moteur arbitrage | lane-execution |
 | E10 | EPIC-10 — Orchestration & opérations | Orchestrateur, résiduel, monitoring sequencer | lane-orchestrateur |
+| E11 | EPIC-11 — Performance & optimisation ciblée | Pipeline perf, build ciblé Skylake, vectorisation | lane-performance |
 
 ## Structure des tickets
 Chaque fichier `.md` comprend :

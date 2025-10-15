@@ -1,6 +1,20 @@
 export { ConfigManager, type ConfigManagerOptions, type ConfigSnapshot } from './core/configManager.js';
 export { SxClient, SxClientError, alignOddsToLadder, type SxClientOptions, type QuoteRequest, type Quote, type BetRequest, type BetExecution, type Fill, type OrderResponse, type MetadataProvider, type QuoteSource, type OrderExecutor, type SxClientMetadata, type OrderStatus } from './clients/sxClient.js';
 export {
+  AzuroClient,
+  AzuroClientError,
+  type AzuroClientOptions,
+  type QuoteRequest as AzuroQuoteRequest,
+  type QuoteResponse as AzuroQuoteResponse,
+  type QuoteSimulation as AzuroQuoteSimulation,
+  type QuoteEngine as AzuroQuoteEngine,
+  type LimitsProvider as AzuroLimitsProvider,
+  type AzuroQuoteRequest,
+  type AzuroQuoteResponse,
+  type AzuroQuoteSimulation,
+  type QuoteEngine,
+} from './clients/azuroClient.js';
+export {
   RuntimeRegistry,
   type RuntimeRegistryOptions,
   type RuntimeFetchers,

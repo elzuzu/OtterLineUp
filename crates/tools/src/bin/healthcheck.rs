@@ -6,6 +6,7 @@ use std::{
 
 use reqwest::Client;
 use serde_yaml::Value;
+use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 use tokio::fs::{self as tokio_fs, OpenOptions};
 use tokio::io::AsyncWriteExt;
 use tokio::sync::Mutex;
@@ -36,7 +37,11 @@ impl Reporter {
                 dir.trim_end_matches('/'),
                 timestamp.as_secs()
             );
-            println!("[INFO] writing healthcheck log to {}", path);
+            println!(
+                "[{}] [INFO] writing healthcheck log to {}",
+                now_timestamp(),
+                path
+            );
             let file = OpenOptions::new()
                 .create(true)
                 .append(true)
@@ -51,13 +56,15 @@ impl Reporter {
     }
 
     async fn log_stdout(&self, message: &str) {
-        println!("{}", message);
-        self.append(message).await;
+        let line = format!("[{}] {}", now_timestamp(), message);
+        println!("{}", line);
+        self.append(&line).await;
     }
 
     async fn log_stderr(&self, message: &str) {
-        eprintln!("{}", message);
-        self.append(message).await;
+        let line = format!("[{}] {}", now_timestamp(), message);
+        eprintln!("{}", line);
+        self.append(&line).await;
     }
 
     async fn append(&self, message: &str) {
@@ -105,6 +112,12 @@ fn ensure_real_money_env() {
             std::process::exit(2);
         }
     }
+}
+
+fn now_timestamp() -> String {
+    OffsetDateTime::now_utc()
+        .format(&Rfc3339)
+        .unwrap_or_else(|_| "1970-01-01T00:00:00Z".to_string())
 }
 
 async fn check_rpc(client: &Client, reporter: &Reporter, name: &str, url: &str) -> bool {

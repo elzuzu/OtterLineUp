@@ -57,7 +57,14 @@ epics:
     tickets:
       Backlog: []
       Ready: []
-      In_Progress: []
+      In_Progress:
+        - id: E3-S1-T4
+          title: "RuntimeRegistry unification & TTL guards"
+          type: Task
+          status: In_Progress
+          assignee: agent-otter-3
+          notes:
+            - "2024-07-05: Nettoyage duplication cache + invalidation"
       In_Review:
         - id: E3-S1
           title: "Politique de sizing & limites SX↔Azuro"
@@ -77,6 +84,8 @@ board:
   In_Progress:
     - epic: EPIC-7
       ticket: E7-S1
+    - epic: EPIC-3
+      ticket: E3-S1-T4
   In_Review:
     - epic: EPIC-7
       ticket: E7-S1a

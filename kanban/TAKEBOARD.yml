@@ -2,12 +2,12 @@
 epics:
   EPIC-1:
     title: Gouvernance & Périmètre SX↔Azuro
-    status: Ready
+    status: In_Progress
 lanes:
-  Backlog:
-    - E1-S1
+  Backlog: []
   Ready: []
-  In_Progress: []
+  In_Progress:
+    - E1-S1
   In_Review: []
   Done:
     - B0-TKB

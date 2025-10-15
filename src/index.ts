@@ -1,4 +1,5 @@
 export { ConfigManager, type ConfigManagerOptions, type ConfigSnapshot } from './core/configManager.js';
+export { SxClient, SxClientError, alignOddsToLadder, type SxClientOptions, type QuoteRequest, type Quote, type BetRequest, type BetExecution, type Fill, type OrderResponse, type MetadataProvider, type QuoteSource, type OrderExecutor, type SxClientMetadata, type OrderStatus } from './clients/sxClient.js';
 export {
   RuntimeRegistry,
   type RuntimeRegistryOptions,

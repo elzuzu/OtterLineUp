@@ -1,6 +1,15 @@
 export { ConfigManager, type ConfigManagerOptions, type ConfigSnapshot } from './core/configManager.js';
 export { SxClient, SxClientError, alignOddsToLadder, type SxClientOptions, type QuoteRequest, type Quote, type BetRequest, type BetExecution, type Fill, type OrderResponse, type MetadataProvider, type QuoteSource, type OrderExecutor, type SxClientMetadata, type OrderStatus } from './clients/sxClient.js';
 export {
+  AzuroClient,
+  AzuroClientError,
+  type AzuroClientOptions,
+  type AzuroQuoteRequest,
+  type AzuroQuoteResponse,
+  type AzuroQuoteSimulation,
+  type QuoteEngine,
+} from './clients/azuroClient.js';
+export {
   RuntimeRegistry,
   type RuntimeRegistryOptions,
   type RuntimeFetchers,
@@ -24,9 +33,11 @@ export { MetricsTracker, type MetricsSnapshot, type TradeSample } from './ops/me
 export {
   evaluateMetricsCompliance,
   assertRealMoneyEnabled,
+  deriveComplianceThresholds,
   type ComplianceThresholds,
   type ComplianceGuardResult,
   type ExecConfigEnvelope,
+  type DeriveComplianceOptions,
 } from './ops/complianceGuards.js';
 export {
   OddsConversionError,
@@ -47,6 +58,8 @@ export { VaultClient, type VaultClientOptions, type VaultSecret, VaultError } fr
 export {
   canonicalFingerprint,
   marketUidFromIdentifier,
+  isMarketUid,
+  assertMarketUid,
   MarketUidError,
   type MarketIdentifier,
   type MarketUid,

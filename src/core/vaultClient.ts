@@ -47,6 +47,15 @@ export class VaultClient {
     return { data: secret.data, metadata: secret.metadata ?? {} };
   }
 
+  async writeSecret<T = Record<string, unknown>>(path: string, data: T): Promise<void> {
+    if (!path) throw new Error('VaultClient.writeSecret requires path');
+    if (data === null || typeof data !== 'object') {
+      throw new Error('VaultClient.writeSecret requires data object');
+    }
+    await this.ensureToken();
+    await this.rawRequest('POST', path, { data });
+  }
+
   async revoke(): Promise<void> {
     if (!this.token) return;
     try {

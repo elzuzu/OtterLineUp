@@ -64,6 +64,7 @@ const computeExpiry = (value: unknown, ttlMs: number, label: string, now: number
   if (timestamp === null) {
     throw new Error(`RuntimeRegistry: ${label} snapshot missing timestamp`);
   }
+  if (timestamp === null) throw new Error(`RuntimeRegistry: ${label} snapshot missing timestamp`);
   const age = now - timestamp;
   if (age > ttlMs) {
     throw new Error(`RuntimeRegistry: ${label} snapshot stale (age ${age}ms > ttl ${ttlMs}ms)`);
@@ -74,8 +75,11 @@ const computeExpiry = (value: unknown, ttlMs: number, label: string, now: number
 export class RuntimeRegistry {
   private readonly bankSlot = createSlot<BankSnapshot>();
   private readonly gasSlots = new Map<string, CacheSlot<GasSnapshot>>();
+
   private readonly sxSlot = createSlot<SxMetadataSnapshot>();
+
   private readonly azuroSlot = createSlot<AzuroLimitsSnapshot>();
+
   private readonly seqSlot = createSlot<SequencerStatus>();
   private readonly now: () => number;
 
@@ -149,6 +153,8 @@ export class RuntimeRegistry {
         const completionTime = this.now();
         const expiresAt = computeExpiry(value, ttlMs, label, completionTime);
         slot.entry = { value, expiresAt };
+        const completedAt = this.now();
+        slot.entry = { value, expiresAt: computeExpiry(value, ttlMs, label, completedAt) };
         slot.pending = null;
         return value;
       })

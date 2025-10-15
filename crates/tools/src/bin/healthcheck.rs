@@ -86,9 +86,24 @@ fn get_string(value: &Value, path: &[&str]) -> Option<String> {
 }
 
 fn require_real_money(value: &Value) {
-    if !value.get("compliance").and_then(|v| v.get("real_money_flag")).and_then(Value::as_bool).unwrap_or(false) {
+    if !value
+        .get("compliance")
+        .and_then(|v| v.get("real_money_flag"))
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+    {
         eprintln!("[FATAL] REAL_MONEY flag must be true in config");
         std::process::exit(2);
+    }
+}
+
+fn ensure_real_money_env() {
+    match env::var("REAL_MONEY") {
+        Ok(value) if value.eq_ignore_ascii_case("true") => {}
+        _ => {
+            eprintln!("[FATAL] REAL_MONEY env var must be set to 'true'");
+            std::process::exit(2);
+        }
     }
 }
 
@@ -206,6 +221,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let contents = fs::read_to_string(&config_path)?;
     let config: Value = serde_yaml::from_str(&contents)?;
     require_real_money(&config);
+    ensure_real_money_env();
 
     const CHECKS: [(&str, CheckKind, &[&str]); 7] = [
         ("sx_rpc_http", CheckKind::Rpc, &["chains", "sx_rollup", "rpc", "http", "url"]),

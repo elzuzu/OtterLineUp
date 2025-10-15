@@ -24,9 +24,11 @@ export { MetricsTracker, type MetricsSnapshot, type TradeSample } from './ops/me
 export {
   evaluateMetricsCompliance,
   assertRealMoneyEnabled,
+  deriveComplianceThresholds,
   type ComplianceThresholds,
   type ComplianceGuardResult,
   type ExecConfigEnvelope,
+  type DeriveComplianceOptions,
 } from './ops/complianceGuards.js';
 export {
   OddsConversionError,

@@ -6,9 +6,9 @@ epics:
 lanes:
   Backlog: []
   Ready: []
-  In_Progress: []
-  In_Review:
+  In_Progress:
     - E1-S1
+  In_Review: []
   Done:
     - B0-TKB
   Blocked: []
@@ -36,13 +36,13 @@ epics:
           status: In_Progress
           assignee: agent-otter-7
           notes: "Implémentation binaire balance_watcher (poll RuntimeRegistry, alertes < seuil)."
+      In_Review:
         - id: E7-S1a-T1
           title: "RuntimeRegistry cache banque & métadonnées"
           type: Task
-          status: In_Progress
+          status: In_Review
           assignee: agent-otter-7
           notes: "Cache TTL court pour banques, gas, metadata SX/Azuro, sequencer."
-      In_Review:
         - id: E7-S1b
           title: "Déduplication exports risk policy"
           type: Task
@@ -57,14 +57,7 @@ epics:
     tickets:
       Backlog: []
       Ready: []
-      In_Progress:
-        - id: E3-S1-T4
-          title: "RuntimeRegistry unification & TTL guards"
-          type: Task
-          status: In_Progress
-          assignee: agent-otter-3
-          notes:
-            - "2024-07-05: Nettoyage duplication cache + invalidation"
+      In_Progress: []
       In_Review:
         - id: E3-S1
           title: "Politique de sizing & limites SX↔Azuro"
@@ -77,6 +70,14 @@ epics:
           assignee: agent-otter-3
           notes:
             - "2024-07-01: RuntimeRegistry TTL caches pour bank/gas/metadata (support sizing)"
+        - id: E3-S1-T4
+          title: "RuntimeRegistry unification & TTL guards"
+          type: Task
+          status: In_Review
+          assignee: agent-otter-3
+          notes:
+            - "2024-07-05: Nettoyage duplication cache + invalidation"
+            - "2024-07-05: Guardes fraîcheur fetchers (timestamps & TTL)"
       Done: []
 board:
   Backlog: []
@@ -84,6 +85,8 @@ board:
   In_Progress:
     - epic: EPIC-7
       ticket: E7-S1
+    - epic: EPIC-2
+      ticket: E2-S1-T4
     - epic: EPIC-3
       ticket: E3-S1-T4
   In_Review:
@@ -97,6 +100,8 @@ board:
       ticket: E3-S1
     - epic: EPIC-3
       ticket: E3-S1-T3
+    - epic: EPIC-3
+      ticket: E3-S1-T4
     - epic: EPIC-4
       ticket: E4-S4
   Done: []
@@ -130,17 +135,17 @@ epics:
       - id: E6-S1-T3
         title: "CamelCase payloads & stake semantics"
         type: Task
-        status: In_Progress
+        status: In_Review
         assignee: agent-otter-6
         notes: "CamelCase serialization pour simulateQuote + distinction stake/amountToken."
 board:
   Ready: []
   In_Progress:
     - E6-S1
-    - E6-S1-T3
   In_Review:
     - E6-S1-T1
     - E6-S1-T2
+    - E6-S1-T3
   Done:
     - BLOCKER-TAKEBOARD
   Blocked: []
@@ -162,15 +167,24 @@ epics:
         notes:
           - "Auto-pause controller implémenté (évaluation fill-ratio/p95/sequencer)"
           - "2024-06-30: Raison d'auto-pause exposée en labels pour instrumentation"
+          - "2024-07-05: Codes erreur standard ajoutés pour auto-pause orchestrateur"
       - id: E10-S1-T1
         title: "Auto-pause decision struct & horodatage"
         type: Task
         status: In_Review
         assignee: agent-otter-10
+      - id: E10-S1-T2
+        title: "Auto-pause tracker idempotent"
+        type: Task
+        status: In_Progress
+        assignee: agent-otter-10
+        notes:
+          - "2024-07-05: Tracker déduplication des raisons auto-pause + reset recovery"
     board:
       Ready: []
       In_Progress:
         - E10-S1
+        - E10-S1-T2
       In_Review:
         - E10-S1-T1
   EPIC-8:
@@ -223,13 +237,21 @@ epics:
         assignee: agent-otter-5
         notes:
           - "2024-06-13: Ajout du délai de grâce betting_delay dans le timeout heartbeat"
+          - "2024-07-05: RuntimeRegistry typed snapshots + TTL clock injection (micro-lot 3)"
       - id: E5-S1-T1
         title: "Client TS scaffolding (metadata & partial fills)"
         type: Task
         status: In_Review
         assignee: agent-otter-5
-    board: { Ready: [], In_Progress: [E5-S1], In_Review: [E5-S1-T1], Done: [], Blocked: [] }
-    updated_at: "2024-07-05T15:00:00Z"
+      - id: E5-S1-T4
+        title: "RuntimeRegistry cache harmonisation (SX feed)"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-5
+        notes:
+          - "2024-07-05: Normalisation snapshots + inflight dedupe (agent-otter-5)"
+    board: { Ready: [], In_Progress: [E5-S1], In_Review: [E5-S1-T1, E5-S1-T4], Done: [], Blocked: [] }
+    updated_at: "2024-07-05T16:45:00Z"
 ---
 epics:
   EPIC-2:
@@ -252,9 +274,17 @@ epics:
         assignee: agent-otter-2
         notes:
           - "Auto-réauth sur invalidation token et couverture tests node:test"
+      - id: E2-S1-T4
+        title: "Audit secrets_smoke → logs/secrets_audit.json"
+        type: Task
+        status: In_Progress
+        assignee: agent-otter-2
+        notes:
+          - "Automatiser append audit JSON depuis scripts/vault_smoke.sh"
 board:
   Ready: []
-  In_Progress: []
+  In_Progress:
+    - E2-S1-T4
   In_Review:
     - E2-S1-T3
   Done:
@@ -273,6 +303,7 @@ board:
         notes:
           - "2024-06-12: SDK TypeScript expose conversions & m_net (micro-lot 1)"
           - "2024-07-02: Helper seuil m_net + tests conversions odds (micro-lot 2)"
+          - "2024-07-06: Nettoyage export RuntimeRegistry (micro-lot 3)"
       - id: E9-S1A
         title: "Module TS convertisseurs odds & net margin"
         type: Task
@@ -287,16 +318,24 @@ board:
         assignee: agent-otter-9
         notes:
           - "2024-07-05: NetMarginError + threshold evaluation (Rust execution crate)"
+      - id: E9-S1-T4
+        title: "SDK TS RuntimeRegistry exports fix"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-9
+        notes:
+          - "2024-07-06: Corrected duplicate exports and missing types"
 board:
   Ready: []
   In_Progress:
     - E9-S1
   In_Review:
     - E9-S1-T3
+    - E9-S1-T4
   Done:
     - E9-S1A
   Blocked: []
-  updated_at: "2024-07-05T09:00:00Z"
+  updated_at: "2024-07-06T09:00:00Z"
 
 epics:
   EPIC-4:
@@ -328,11 +367,19 @@ epics:
         assignee: agent-otter-4
         notes:
           - "2024-07-05: assertRealMoneyEnabled dans complianceGuards + tests"
+      - id: E4-S5
+        title: "Seuils auto-pause dérivés de exec config"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-4
+        notes:
+          - "2024-07-05: deriveComplianceThresholds mappe config.exec vers ComplianceThresholds"
     board:
       Ready: []
       In_Progress: []
       In_Review:
         - E4-S4
+        - E4-S5
       Done:
         - E4-S1
         - E4-S2

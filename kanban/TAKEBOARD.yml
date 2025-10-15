@@ -36,6 +36,12 @@ epics:
           status: In_Progress
           assignee: agent-otter-7
           notes: "Implémentation binaire balance_watcher (poll RuntimeRegistry, alertes < seuil)."
+        - id: E7-S1a-T1
+          title: "RuntimeRegistry cache banque & métadonnées"
+          type: Task
+          status: In_Progress
+          assignee: agent-otter-7
+          notes: "Cache TTL court pour banques, gas, metadata SX/Azuro, sequencer."
       In_Review: []
       Done: []
   - id: EPIC-3
@@ -60,6 +66,8 @@ board:
       ticket: E7-S1
     - epic: EPIC-7
       ticket: E7-S1a
+    - epic: EPIC-7
+      ticket: E7-S1a-T1
     - epic: EPIC-3
       ticket: E3-S1
   In_Review: []

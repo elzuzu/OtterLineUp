@@ -164,18 +164,18 @@ epics:
       - id: E8-S1-T2
         title: "Générateur MarketUID TypeScript & export SDK"
         type: Task
-        status: In_Progress
+        status: In_Review
         assignee: agent-otter-8
         notes: "Implémentation module TS canonicalFingerprint + hashing, export SDK."
     board:
       Ready: []
       In_Progress:
         - E8-S1
+      In_Review:
         - E8-S1-T2
-      In_Review: []
       Done: []
       Blocked: []
-    updated_at: "2024-07-05T12:30:00Z"
+    updated_at: "2024-07-05T15:00:00Z"
 epics:
   EPIC-5:
     title: "Connecteur SX Rollup"

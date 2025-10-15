@@ -14,6 +14,7 @@ deps:
 acceptance:
   - Schéma d’UID (`docs/mapping/market_uid.md`) combinant opérateur, ligue, type marché, timestamp, outcome et définissant MarketUID canonique (hash métadonnées normalisées).
   - Crate Rust `crates/normalization/src/market_uid.rs` générant UID déterministe avec tests de collision et vérification hash canonique.
+  - Pipeline déduplication (`crates/normalization/src/dedup.rs`) supprimant doublons SX/Azuro à l’ingestion (même match, marchés alias) basé sur MarketUID + side.
   - Base de données `data/market_uid_seed.csv` pour 50 marchés pilotes synchronisée.
 evidence:
   - Tests `crates/normalization/tests/market_uid.rs` verts via `cargo test` avec rapport collisions.
@@ -21,8 +22,8 @@ evidence:
   - Export CSV versionné.
 tasks:
   - Définir structure UID + règles fallback quand champ manquant.
-  - Implémenter bibliothèque Rust (`serde`, `chrono`) + tests unitaires & property-based.
-  - Alimenter CSV seed via extraction SX/Azuro (outil CLI Rust `crates/normalization/src/bin/export_seed.rs`).
+  - Implémenter bibliothèque Rust (`serde`, `chrono`) + tests unitaires & property-based et module `dedup.rs` (MarketUID+side).
+  - Alimenter CSV seed via extraction SX/Azuro (outil CLI Rust `crates/normalization/src/bin/export_seed.rs`) et valider pipeline dédup.
 observability:
   - KPIs : taux collisions, temps génération UID.
   - Logs : anomalies `uid_conflict`.

@@ -15,15 +15,16 @@ deps:
 acceptance:
   - Client GraphQL/REST Rust (`crates/azuro_client/src/lib.rs`) exposant `simulateQuote(size)` retournant cote post-impact + `Δcote`, et `placeBet()` rejetant si `Δcote > 0,02` décimal.
   - Contrôle `maxPayout()` exécuté avant tout `placeBet()` avec rejet explicite si dépassement, et support hedge/residual respectant règles void/suspension Azuro.
-  - Tests d’intégration async (`crates/azuro_client/tests/integration.rs`) couvrant simulateQuote, contrôle `maxPayout`, hedge/residuel et journalisant `odd_sim`, `odd_fill`, `Δ`, `payout_cap`.
+  - Conventions données harmonisées : requêtes/réponses camelCase, `stake` (USD) distinct de `amountToken`, timestamps UTC, et mapping erreurs vers codes (`E-AZU-ΔODD-THRESH`, `E-AZU-MAX-PAYOUT`, etc.) sans panics.
+  - Tests d’intégration async (`crates/azuro_client/tests/integration.rs`) couvrant simulateQuote, contrôle `maxPayout`, hedge/residuel, Δcote et codes d’erreur, journalisant `odd_sim`, `odd_fill`, `Δ`, `payout_cap`.
 evidence:
   - Rapport `cargo tarpaulin` ≥ 80 % sur crate Azuro.
   - Logs `tracing` dry-run `evidence/azuro_fill.log` montrant scenario hedge/résiduel.
   - Diagramme séquence `docs/seq/azuro_client.md`.
 tasks:
-  - Implémenter client GraphQL (quotes, placements, settlement) avec résilience réseau (`async-graphql-client`, `reqwest` + `tokio`), instrumentation `tracing` et calcul `simulateQuote` post-impact.
-  - Mapper règles void/suspension vers modèle interne (`crates/azuro_client/src/rules.rs`) avec contrôle `maxPayout` pré-envoi et rejet `Δcote > 0,02`.
-  - Écrire tests & binaire simulation résiduelle (`crates/azuro_client/src/bin/residual_sim.rs`) produisant métriques `odd_sim`, `odd_fill`, `Δ`, `payout_cap`.
+  - Implémenter client GraphQL (quotes, placements, settlement) avec résilience réseau (`async-graphql-client`, `reqwest` + `tokio`), instrumentation `tracing`, calcul `simulateQuote` post-impact et normalisation camelCase/timestamps UTC.
+  - Mapper règles void/suspension vers modèle interne (`crates/azuro_client/src/rules.rs`) avec contrôle `maxPayout` pré-envoi, rejet `Δcote > 0,02` et codes erreurs standardisés.
+  - Écrire tests & binaire simulation résiduelle (`crates/azuro_client/src/bin/residual_sim.rs`) produisant métriques `odd_sim`, `odd_fill`, `Δ`, `payout_cap` et vérifiant absence de panics.
 observability:
   - KPIs : latence quote, taux success hedge, ratio void.
   - Logs : `hedge_id`, `status`, `retry_count`, `reason`.

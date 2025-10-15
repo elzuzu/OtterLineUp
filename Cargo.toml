@@ -1,5 +1,7 @@
 [workspace]
 members = [
+    "crates/normalization",
+    "crates/monitoring",
     "crates/sx_client",
     "crates/azuro_client",
     "crates/execution",

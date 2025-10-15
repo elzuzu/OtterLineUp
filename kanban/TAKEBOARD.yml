@@ -107,8 +107,8 @@ board:
     status: In_Progress
     tickets:
       - { id: E8-S1, title: "Générateur d’UID marché SX↔Azuro", type: Story, status: In_Progress, assignee: agent-otter-8 }
-board: { Ready: [], In_Progress: [E8-S1], In_Review: [], Done: [], Blocked: [] }
-updated_at: "2024-06-11T00:00:00Z"
+    board: { Ready: [], In_Progress: [E8-S1], In_Review: [], Done: [], Blocked: [] }
+    updated_at: "2024-06-12T12:00:00Z"
 epics:
   EPIC-5:
     title: "Connecteur SX Rollup"

@@ -57,6 +57,15 @@ impl AutoPauseReason {
             AutoPauseReason::AcceptTimeHigh { .. } => "accept_time_high",
         }
     }
+
+    pub fn error_code(&self) -> &'static str {
+        match self {
+            AutoPauseReason::SequencerDown => "E-RUNTIME-SEQUENCER",
+            AutoPauseReason::SxRpcDown => "E-RUNTIME-SX-RPC",
+            AutoPauseReason::FillRatioLow { .. } => "E-QOS-FILL-RATIO",
+            AutoPauseReason::AcceptTimeHigh { .. } => "E-QOS-ACCEPT-LATENCY",
+        }
+    }
 }
 
 #[derive(Debug, Clone)]

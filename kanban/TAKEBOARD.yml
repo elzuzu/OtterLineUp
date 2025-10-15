@@ -42,7 +42,13 @@ epics:
           status: In_Progress
           assignee: agent-otter-7
           notes: "Cache TTL court pour banques, gas, metadata SX/Azuro, sequencer."
-      In_Review: []
+      In_Review:
+        - id: E7-S1b
+          title: "Déduplication exports risk policy"
+          type: Task
+          status: In_Review
+          assignee: agent-otter-7
+          notes: "Nettoyage index.ts pour éviter les doublons RiskPolicy et rétablir la compilation."
       Done: []
   - id: EPIC-3
     title: "Bankroll & sizing multi-opérateurs"
@@ -51,7 +57,14 @@ epics:
     tickets:
       Backlog: []
       Ready: []
-      In_Progress: []
+      In_Progress:
+        - id: E3-S1-T4
+          title: "RuntimeRegistry unification & TTL guards"
+          type: Task
+          status: In_Progress
+          assignee: agent-otter-3
+          notes:
+            - "2024-07-05: Nettoyage duplication cache + invalidation"
       In_Review:
         - id: E3-S1
           title: "Politique de sizing & limites SX↔Azuro"
@@ -71,15 +84,23 @@ board:
   In_Progress:
     - epic: EPIC-7
       ticket: E7-S1
+    - epic: EPIC-2
+      ticket: E2-S1-T4
+    - epic: EPIC-3
+      ticket: E3-S1-T4
   In_Review:
     - epic: EPIC-7
       ticket: E7-S1a
     - epic: EPIC-7
       ticket: E7-S1a-T1
+    - epic: EPIC-7
+      ticket: E7-S1b
     - epic: EPIC-3
       ticket: E3-S1
     - epic: EPIC-3
       ticket: E3-S1-T3
+    - epic: EPIC-4
+      ticket: E4-S4
   Done: []
 epics:
   EPIC-6:
@@ -143,6 +164,7 @@ epics:
         notes:
           - "Auto-pause controller implémenté (évaluation fill-ratio/p95/sequencer)"
           - "2024-06-30: Raison d'auto-pause exposée en labels pour instrumentation"
+          - "2024-07-05: Codes erreur standard ajoutés pour auto-pause orchestrateur"
       - id: E10-S1-T1
         title: "Auto-pause decision struct & horodatage"
         type: Task
@@ -171,18 +193,18 @@ epics:
       - id: E8-S1-T2
         title: "Générateur MarketUID TypeScript & export SDK"
         type: Task
-        status: In_Progress
+        status: In_Review
         assignee: agent-otter-8
         notes: "Implémentation module TS canonicalFingerprint + hashing, export SDK."
     board:
       Ready: []
       In_Progress:
         - E8-S1
+      In_Review:
         - E8-S1-T2
-      In_Review: []
       Done: []
       Blocked: []
-    updated_at: "2024-07-05T12:30:00Z"
+    updated_at: "2024-07-05T15:00:00Z"
 epics:
   EPIC-5:
     title: "Connecteur SX Rollup"
@@ -233,9 +255,17 @@ epics:
         assignee: agent-otter-2
         notes:
           - "Auto-réauth sur invalidation token et couverture tests node:test"
+      - id: E2-S1-T4
+        title: "Audit secrets_smoke → logs/secrets_audit.json"
+        type: Task
+        status: In_Progress
+        assignee: agent-otter-2
+        notes:
+          - "Automatiser append audit JSON depuis scripts/vault_smoke.sh"
 board:
   Ready: []
-  In_Progress: []
+  In_Progress:
+    - E2-S1-T4
   In_Review:
     - E2-S1-T3
   Done:
@@ -261,21 +291,29 @@ board:
         assignee: agent-otter-9
         notes:
           - "2024-06-12: Implémentation odds.ts + export core/index"
+      - id: E9-S1-T3
+        title: "Net margin gardes-fous & seuils"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-9
+        notes:
+          - "2024-07-05: NetMarginError + threshold evaluation (Rust execution crate)"
 board:
   Ready: []
   In_Progress:
     - E9-S1
-  In_Review: []
+  In_Review:
+    - E9-S1-T3
   Done:
     - E9-S1A
   Blocked: []
-  updated_at: "2024-06-12T09:00:00Z"
+  updated_at: "2024-07-05T09:00:00Z"
 
 epics:
   EPIC-4:
     title: "Compliance & garde-fous réglementaires"
     owner: lane-compliance
-    status: Done
+    status: In_Progress
     tickets:
       - id: E4-S1
         title: "Cadre conformité CH & SX/Azuro"
@@ -294,13 +332,21 @@ epics:
         assignee: agent-otter-4
         notes:
           - "Auto-pause void rate threshold intégré dans complianceGuards."
+      - id: E4-S4
+        title: "Garde-fou REAL_MONEY config TypeScript"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-4
+        notes:
+          - "2024-07-05: assertRealMoneyEnabled dans complianceGuards + tests"
     board:
       Ready: []
       In_Progress: []
-      In_Review: []
+      In_Review:
+        - E4-S4
       Done:
         - E4-S1
         - E4-S2
         - E4-S3
       Blocked: []
-updated_at: "2024-07-01T13:00:00Z"
+updated_at: "2024-07-05T12:30:00Z"

@@ -310,6 +310,7 @@ assert.equal(azuroCalls, 2);
 
 await registry.sequencerHealth();
 await registry.sequencerHealth();
+await Promise.all([registry.getSxMetadata(), registry.getAzuroLimits(), registry.sequencerHealth()]);
 assert.equal(sequencerCalls, 1);
 
 tick(100);

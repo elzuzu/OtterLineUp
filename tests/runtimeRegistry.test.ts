@@ -187,6 +187,31 @@ const opts: RuntimeRegistryOptions = {
   ttl: { bankMs: 80, gasMs: 80, sxMetadataMs: 80, azuroLimitsMs: 80, sequencerMs: 80 },
   clock: () => nowMs,
   fetchers: {
+    bank: async (): Promise<BankSnapshot> => {
+      bankCalls += 1;
+      await new Promise((resolve) => setImmediate(resolve));
+      return { totalUsd: 250, perChainUsd: { 'sx-rollup': 150, 'arbitrum-one': 100 }, fetchedAt: new Date(nowMs) };
+    },
+    gas: async (chain: string): Promise<GasSnapshot> => {
+      gasCalls.set(chain, (gasCalls.get(chain) ?? 0) + 1);
+      await new Promise((resolve) => setImmediate(resolve));
+      return { chain, priceGwei: chain === 'sx-rollup' ? 0.1 : 0.5, fetchedAt: new Date(nowMs) };
+    },
+    sxMetadata: async (): Promise<SxMetadataSnapshot> => {
+      metadataCalls += 1;
+      await new Promise((resolve) => setImmediate(resolve));
+      return { oddsLadder: [1.91, 1.95], bettingDelayMs: 300, heartbeatMs: 2_000, fetchedAt: new Date(nowMs) };
+    },
+    azuroLimits: async (): Promise<AzuroLimitsSnapshot> => {
+      azuroCalls += 1;
+      await new Promise((resolve) => setImmediate(resolve));
+      return { maxPayoutUsd: 5_000, quoteMargin: 0.04, fetchedAt: new Date(nowMs) };
+    },
+    sequencer: async (): Promise<SequencerStatus> => {
+      sequencerCalls += 1;
+      await new Promise((resolve) => setImmediate(resolve));
+      return { chain: 'arbitrum-one', healthy: true, checkedAt: new Date(nowMs) };
+    },
     bank: async (): Promise<BankSnapshot> => ({
       totalUsd: (bankCalls += 1, 250),
       perChainUsd: { 'sx-rollup': 150, 'arbitrum-one': 100 },
@@ -258,6 +283,11 @@ assert.equal(bankCalls, 2);
 await registry.getGas('sx-rollup');
 await registry.getGas('sx-rollup');
 assert.equal(gasCalls.get('sx-rollup'), 1);
+
+tick(100);
+await registry.getGas('sx-rollup');
+assert.equal(gasCalls.get('sx-rollup'), 2);
+
 await registry.getGas('arbitrum-one');
 assert.equal(gasCalls.get('arbitrum-one'), 1);
 await assert.rejects(() => registry.getGas(''), /chain required/);
@@ -266,9 +296,25 @@ const [metaA, metaB] = await Promise.all([registry.getSxMetadata(), registry.get
 assert.strictEqual(metaA, metaB);
 assert.equal(metadataCalls, 1);
 
+tick(120);
+await registry.getSxMetadata();
+assert.equal(metadataCalls, 2);
+
 await registry.getAzuroLimits();
 await registry.getAzuroLimits();
 assert.equal(azuroCalls, 1);
+
+tick(90);
+await registry.getAzuroLimits();
+assert.equal(azuroCalls, 2);
+
+await registry.sequencerHealth();
+await registry.sequencerHealth();
+assert.equal(sequencerCalls, 1);
+
+tick(100);
+await registry.sequencerHealth();
+assert.equal(sequencerCalls, 2);
 await registry.sequencerHealth();
 await registry.sequencerHealth();
 assert.equal(sequencerCalls, 1);

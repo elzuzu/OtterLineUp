@@ -37,19 +37,19 @@ epics:
           assignee: agent-otter-7
           notes: "Implémentation binaire balance_watcher (poll RuntimeRegistry, alertes < seuil)."
       In_Review:
-        - id: E7-S1a-T1
-          title: "RuntimeRegistry cache banque & métadonnées"
-          type: Task
-          status: In_Review
-          assignee: agent-otter-7
-          notes: "Cache TTL court pour banques, gas, metadata SX/Azuro, sequencer."
         - id: E7-S1b
           title: "Déduplication exports risk policy"
           type: Task
           status: In_Review
           assignee: agent-otter-7
           notes: "Nettoyage index.ts pour éviter les doublons RiskPolicy et rétablir la compilation."
-      Done: []
+      Done:
+        - id: E7-S1a-T1
+          title: "RuntimeRegistry cache banque & métadonnées"
+          type: Task
+          status: Done
+          assignee: agent-otter-7
+          notes: "Cache TTL court pour banques, gas, metadata SX/Azuro, sequencer."
   - id: EPIC-3
     title: "Bankroll & sizing multi-opérateurs"
     owner: lane-risk
@@ -102,9 +102,10 @@ board:
     - epic: EPIC-7
       ticket: E7-S1a
     - epic: EPIC-7
-      ticket: E7-S1a-T1
-    - epic: EPIC-7
       ticket: E7-S1b
+  Done:
+    - epic: EPIC-7
+      ticket: E7-S1a-T1
     - epic: EPIC-3
       ticket: E3-S1
     - epic: EPIC-3

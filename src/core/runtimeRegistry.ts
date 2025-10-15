@@ -137,6 +137,10 @@ export class RuntimeRegistry {
     this.azuroSlot.pending = null;
     this.seqSlot.entry = null;
     this.seqSlot.pending = null;
+    for (const slot of this.gasSlots.values()) {
+      slot.entry = null;
+      slot.pending = null;
+    }
     this.gasSlots.clear();
   }
 
@@ -156,6 +160,8 @@ export class RuntimeRegistry {
     }
     const pending = loader()
       .then((value) => {
+        const refreshedAt = this.now();
+        slot.entry = { value, expiresAt: computeExpiry(value, ttlMs, label, refreshedAt) };
         const expiry = computeExpiry(value, ttlMs, label, this.now());
         slot.entry = { value, expiresAt: expiry };
         const completionTime = this.now();

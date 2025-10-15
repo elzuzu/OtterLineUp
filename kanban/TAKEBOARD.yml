@@ -22,7 +22,7 @@ epics:
   - id: EPIC-7
     title: "Observabilité & QoS transverse"
     owner: lane-observability
-    status: Ready
+    status: In_Progress
     tickets:
       Backlog: []
       Ready: []
@@ -30,6 +30,12 @@ epics:
         - id: E7-S1
           title: "QoS mutualisée SX↔Azuro (latence & heartbeat)"
           ref: kanban/backlog/E7_S1_qos_commun.md
+        - id: E7-S1a
+          title: "Watcher soldes runtime (alerte seuil)"
+          type: Task
+          status: In_Progress
+          assignee: agent-otter-7
+          notes: "Implémentation binaire balance_watcher (poll RuntimeRegistry, alertes < seuil)."
       In_Review: []
       Done: []
   - id: EPIC-3
@@ -52,7 +58,8 @@ board:
   In_Progress:
     - epic: EPIC-7
       ticket: E7-S1
-  In_Progress:
+    - epic: EPIC-7
+      ticket: E7-S1a
     - epic: EPIC-3
       ticket: E3-S1
   In_Review: []

@@ -1,4 +1,5 @@
 [workspace]
+members = ["crates/monitoring", "crates/sx_client", "crates/azuro_client", "crates/execution"]
 members = [
     "crates/azuro_client",
     "crates/execution",

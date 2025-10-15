@@ -62,6 +62,16 @@ export class RuntimeRegistry {
 
   private resolve<T>(slot: CacheSlot<T>, ttlMs: number, loader: () => Promise<T>): Promise<T> {
     const entry = slot.entry;
+    if (entry && entry.expiresAt > Date.now()) return Promise.resolve(entry.value);
+    if (slot.pending) return slot.pending;
+    const pending = loader().then((value) => {
+      slot.entry = { value, expiresAt: Date.now() + ttlMs };
+      slot.pending = null;
+      return value;
+    }, (error) => {
+      slot.pending = null;
+      throw error;
+    });
     if (entry && entry.expiresAt > Date.now()) {
       return Promise.resolve(entry.value);
     }

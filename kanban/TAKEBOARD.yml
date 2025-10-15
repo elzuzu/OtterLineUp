@@ -164,24 +164,24 @@ epics:
   EPIC-4:
     title: "Compliance & garde-fous réglementaires"
     owner: lane-compliance
-    status: In_Progress
+    status: Done
     tickets:
       - id: E4-S1
         title: "Cadre conformité CH & SX/Azuro"
         type: Story
-        status: In_Review
+        status: Done
         assignee: agent-otter-4
       - id: E4-S2
         title: "Métriques compliance (fill_ratio, p95, Δquote)"
         type: Task
-        status: In_Review
+        status: Done
         assignee: agent-otter-4
     board:
       Ready: []
       In_Progress: []
-      In_Review:
+      In_Review: []
+      Done:
         - E4-S1
         - E4-S2
-      Done: []
       Blocked: []
-updated_at: "2024-06-11T18:00:00Z"
+updated_at: "2024-07-01T00:00:00Z"

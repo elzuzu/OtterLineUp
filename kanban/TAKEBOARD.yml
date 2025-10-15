@@ -58,9 +58,9 @@ epics:
         status: Ready
         assignee: lane-azuro
 board:
-  Ready:
+  Ready: []
+  In_Progress:
     - E6-S1
-  In_Progress: []
   In_Review: []
   Done:
     - BLOCKER-TAKEBOARD

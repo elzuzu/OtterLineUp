@@ -1,0 +1,3 @@
+[workspace]
+members = ["crates/azuro_client"]
+resolver = "2"

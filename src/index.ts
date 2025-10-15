@@ -20,8 +20,13 @@ export {
   type StopLossEvaluation,
 } from './core/riskPolicy.js';
 export { MetricsTracker, type MetricsSnapshot, type TradeSample } from './ops/metrics.js';
-export { RiskPolicy, type OddsSlippagePolicy, type RiskSnapshot, type StakeDecision, type StakeParameters, type StopLossRule } from './core/riskPolicy.js';
-export { RuntimeRegistry, type RuntimeRegistryOptions, type BankBalance, type GasSnapshot, type SxMetadata, type AzuroLimits, type SequencerHealth } from './core/runtimeRegistry.js';
+export {
+  evaluateMetricsCompliance,
+  assertRealMoneyEnabled,
+  type ComplianceThresholds,
+  type ComplianceGuardResult,
+  type ExecConfigEnvelope,
+} from './ops/complianceGuards.js';
 export {
   OddsConversionError,
   americanFromDecimal,

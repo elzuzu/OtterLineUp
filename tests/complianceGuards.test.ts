@@ -1,4 +1,4 @@
-import { evaluateMetricsCompliance } from '../src/ops/complianceGuards.js';
+import { assertRealMoneyEnabled, evaluateMetricsCompliance } from '../src/ops/complianceGuards.js';
 import { MetricsSnapshot } from '../src/ops/metrics.js';
 
 const baseSnapshot: MetricsSnapshot = {
@@ -71,4 +71,15 @@ try {
   console.assert(false, 'missing thresholds should throw');
 } catch (error) {
   console.assert(error instanceof Error, 'should throw an Error when thresholds missing');
+}
+
+assertRealMoneyEnabled({ exec: { real_money: true } });
+
+for (const invalid of [undefined, {}, { exec: {} }, { exec: { real_money: false } }, { exec: { real_money: 'true' } }]) {
+  try {
+    assertRealMoneyEnabled(invalid as any);
+    console.assert(false, 'invalid REAL_MONEY payload should throw');
+  } catch (error) {
+    console.assert(error instanceof Error, 'invalid REAL_MONEY payload should throw Error');
+  }
 }

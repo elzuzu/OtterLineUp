@@ -12,8 +12,24 @@ pub enum ConversionError {
     InvalidDecimal,
     #[error("american odds cannot be zero")]
     InvalidAmerican,
+    #[error("commission must be between 0 and 1 exclusive")]
+    InvalidCommission,
     #[error("total implied probability must be positive")]
     InvalidProbabilityTotal,
+}
+
+fn validate_decimal(decimal_odds: Decimal) -> Result<(), ConversionError> {
+    if decimal_odds <= Decimal::ONE {
+        return Err(ConversionError::InvalidDecimal);
+    }
+    Ok(())
+}
+
+fn validate_commission(rate: Decimal) -> Result<(), ConversionError> {
+    if rate <= Decimal::ZERO || rate >= Decimal::ONE {
+        return Err(ConversionError::InvalidCommission);
+    }
+    Ok(())
 }
 
 pub fn decimal_from_probability(probability: Decimal) -> Result<Decimal, ConversionError> {
@@ -24,9 +40,7 @@ pub fn decimal_from_probability(probability: Decimal) -> Result<Decimal, Convers
 }
 
 pub fn probability_from_decimal(decimal_odds: Decimal) -> Result<Decimal, ConversionError> {
-    if decimal_odds <= Decimal::ONE {
-        return Err(ConversionError::InvalidDecimal);
-    }
+    validate_decimal(decimal_odds)?;
     Ok(Decimal::ONE / decimal_odds)
 }
 
@@ -42,15 +56,56 @@ pub fn decimal_from_american(american_odds: i32) -> Result<Decimal, ConversionEr
 }
 
 pub fn american_from_decimal(decimal_odds: Decimal) -> Result<i32, ConversionError> {
-    if decimal_odds <= Decimal::ONE {
-        return Err(ConversionError::InvalidDecimal);
-    }
+    validate_decimal(decimal_odds)?;
     let value = if decimal_odds >= Decimal::from(2) {
         (decimal_odds - Decimal::ONE) * HUNDRED
     } else {
         -HUNDRED / (decimal_odds - Decimal::ONE)
     };
     value.round().to_i32().ok_or(ConversionError::InvalidDecimal)
+}
+
+pub fn decimal_after_commission(
+    decimal_odds: Decimal,
+    commission_rate: Decimal,
+) -> Result<Decimal, ConversionError> {
+    validate_decimal(decimal_odds)?;
+    validate_commission(commission_rate)?;
+    let multiplier = Decimal::ONE - commission_rate;
+    Ok(Decimal::ONE + (decimal_odds - Decimal::ONE) * multiplier)
+}
+
+pub fn decimal_before_commission(
+    net_decimal_odds: Decimal,
+    commission_rate: Decimal,
+) -> Result<Decimal, ConversionError> {
+    validate_decimal(net_decimal_odds)?;
+    validate_commission(commission_rate)?;
+    let multiplier = Decimal::ONE - commission_rate;
+    if multiplier <= Decimal::ZERO {
+        return Err(ConversionError::InvalidCommission);
+    }
+    Ok(Decimal::ONE + (net_decimal_odds - Decimal::ONE) / multiplier)
+}
+
+pub fn decimals_after_commission(
+    decimals: &[Decimal],
+    commission_rate: Decimal,
+) -> Result<Vec<Decimal>, ConversionError> {
+    decimals
+        .iter()
+        .map(|&decimal| decimal_after_commission(decimal, commission_rate))
+        .collect()
+}
+
+pub fn decimals_before_commission(
+    decimals: &[Decimal],
+    commission_rate: Decimal,
+) -> Result<Vec<Decimal>, ConversionError> {
+    decimals
+        .iter()
+        .map(|&decimal| decimal_before_commission(decimal, commission_rate))
+        .collect()
 }
 
 pub fn normalized_probabilities(decimals: &[Decimal]) -> Result<Vec<Decimal>, ConversionError> {
@@ -77,6 +132,7 @@ pub fn decimals_without_overround(decimals: &[Decimal]) -> Result<Vec<Decimal>, 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use proptest::prelude::*;
     use std::str::FromStr;
 
     fn dec(value: &str) -> Decimal {
@@ -108,5 +164,24 @@ mod tests {
         let normalized = normalized_probabilities(&adjusted).expect("normalized");
         let total: Decimal = normalized.iter().copied().sum();
         assert!((total - Decimal::ONE).abs() < Decimal::new(1, 6));
+    }
+
+    #[test]
+    fn applies_commission_to_decimal() {
+        let decimal = dec("2.50");
+        let rate = dec("0.05");
+        let net = decimal_after_commission(decimal, rate).expect("net decimal");
+        assert!((net - dec("2.375")).abs() < Decimal::new(1, 6));
+    }
+
+    proptest! {
+        #[test]
+        fn commission_roundtrip(raw in 1.01f64..10.0f64, commission in 0.01f64..0.15f64) {
+            let decimal = Decimal::from_f64(raw).expect("decimal from f64");
+            let rate = Decimal::from_f64(commission).expect("rate from f64");
+            let net = decimal_after_commission(decimal, rate).expect("net decimal");
+            let restored = decimal_before_commission(net, rate).expect("restored decimal");
+            prop_assert!((restored - decimal).abs() < Decimal::new(1, 6));
+        }
     }
 }

@@ -185,6 +185,7 @@ board:
         assignee: agent-otter-9
         notes:
           - "2024-06-12: SDK TypeScript expose conversions & m_net (micro-lot 1)"
+          - "2024-07-02: Helper seuil m_net + tests conversions odds (micro-lot 2)"
       - id: E9-S1A
         title: "Module TS convertisseurs odds & net margin"
         type: Task

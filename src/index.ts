@@ -1,4 +1,5 @@
 export { ConfigManager, type ConfigManagerOptions, type ConfigSnapshot } from './core/configManager.js';
+export { SxClient, SxClientError, alignOddsToLadder, type SxClientOptions, type QuoteRequest, type Quote, type BetRequest, type BetExecution, type Fill, type OrderResponse, type MetadataProvider, type QuoteSource, type OrderExecutor, type SxClientMetadata, type OrderStatus } from './clients/sxClient.js';
 export {
   RuntimeRegistry,
   type RuntimeRegistryOptions,
@@ -20,6 +21,14 @@ export {
   type StopLossEvaluation,
 } from './core/riskPolicy.js';
 export { MetricsTracker, type MetricsSnapshot, type TradeSample } from './ops/metrics.js';
+export {
+  evaluateMetricsCompliance,
+  assertRealMoneyEnabled,
+  type ComplianceThresholds,
+  type ComplianceGuardResult,
+  type ExecConfigEnvelope,
+} from './ops/complianceGuards.js';
+export { RuntimeRegistry, type RuntimeRegistryOptions, type BankBalance, type GasSnapshot, type SxMetadata, type AzuroLimits, type SequencerHealth } from './core/runtimeRegistry.js';
 export {
   OddsConversionError,
   americanFromDecimal,

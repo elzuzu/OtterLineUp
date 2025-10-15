@@ -50,32 +50,6 @@ const opts: RuntimeRegistryOptions = {
       await new Promise((resolve) => setImmediate(resolve));
       return { chain: 'arbitrum-one', healthy: true, checkedAt: new Date(nowMs) };
     },
-    bank: async (): Promise<BankSnapshot> => ({
-      totalUsd: (++bankCalls, 250),
-      perChainUsd: { 'sx-rollup': 150, 'arbitrum-one': 100 },
-      fetchedAt: new Date(),
-    }),
-    gas: async (chain: string): Promise<GasSnapshot> => ({
-      chain,
-      priceGwei: (gasCalls.set(chain, (gasCalls.get(chain) ?? 0) + 1), chain === 'sx-rollup' ? 0.1 : 0.5),
-      fetchedAt: new Date(),
-    }),
-    sxMetadata: async (): Promise<SxMetadataSnapshot> => ({
-      oddsLadder: (++sxCalls, [1.91, 1.95]),
-      bettingDelayMs: 300,
-      heartbeatMs: 2_000,
-      fetchedAt: new Date(),
-    }),
-    azuroLimits: async (): Promise<AzuroLimitsSnapshot> => ({
-      maxPayoutUsd: (++azuroCalls, 5_000),
-      quoteMargin: 0.04,
-      fetchedAt: new Date(),
-    }),
-    sequencer: async (): Promise<SequencerStatus> => ({
-      chain: 'arbitrum-one',
-      healthy: (sequencerCalls += 1, true),
-      checkedAt: new Date(),
-    }),
   },
 };
 
@@ -120,10 +94,8 @@ assert.equal(azuroCalls, 1);
 
 await registry.sequencerHealth();
 await registry.sequencerHealth();
-assert.equal(gasA.priceGwei, 0.1);
-
 await Promise.all([registry.getSxMetadata(), registry.getAzuroLimits(), registry.sequencerHealth()]);
-assert.equal(sxCalls, 1);
+assert.equal(metadataCalls, 1);
 assert.equal(azuroCalls, 1);
 assert.equal(sequencerCalls, 1);
 

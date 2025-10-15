@@ -135,8 +135,9 @@ board:
         assignee: agent-otter-8
         notes:
           - "2024-06-30: Schéma MarketUID documenté (docs/mapping/market_uid.md)."
+          - "2024-07-01: Propriétés génératives ajoutées (uid/dedup) + proptest."
     board: { Ready: [], In_Progress: [E8-S1], In_Review: [], Done: [], Blocked: [] }
-    updated_at: "2024-06-30T12:00:00Z"
+    updated_at: "2024-07-01T12:00:00Z"
 epics:
   EPIC-5:
     title: "Connecteur SX Rollup"

@@ -31,6 +31,7 @@ pub struct QuoteSimulation {
     pub stake_usd: f64,
     pub expected_payout: f64,
     pub payout_cap: f64,
+    pub payout_headroom: f64,
 }
 
 pub struct AzuroClient<E: QuoteEngine> { config: Arc<RwLock<AzuroConfig>>, engine: E }
@@ -51,6 +52,15 @@ impl<E: QuoteEngine> AzuroClient<E> {
         let config = self.config();
         let quote = self.engine.fetch_quote(request)?;
         let payout_limit = self.engine.max_payout()?;
+        if !(payout_limit.is_finite() && payout_limit > 0.0) {
+            return Err(
+                AzuroError::new(
+                    AzuroErrorCode::Configuration,
+                    "max payout must be a positive finite amount",
+                )
+                .with_detail(format!("limit={payout_limit}")),
+            );
+        }
         let payout = request.stake_usd * quote.marginal_odd;
         if payout > payout_limit {
             return Err(
@@ -78,6 +88,7 @@ impl<E: QuoteEngine> AzuroClient<E> {
             stake_usd: request.stake_usd,
             expected_payout: payout,
             payout_cap: payout_limit,
+            payout_headroom: (payout_limit - payout).max(0.0),
         })
     }
 }
@@ -116,6 +127,7 @@ mod tests {
         assert!((result.delta - 0.01).abs() < f64::EPSILON);
         assert!((result.expected_payout - 92.5).abs() < f64::EPSILON);
         assert!((result.payout_cap - 1000.0).abs() < f64::EPSILON);
+        assert!((result.payout_headroom - 907.5).abs() < f64::EPSILON);
     }
 
     #[test]
@@ -145,6 +157,25 @@ mod tests {
             .detail()
             .expect("detail")
             .contains("limit=150.00"));
+    }
+
+    #[test]
+    fn rejects_when_payout_limit_invalid() {
+        #[derive(Clone)]
+        struct InvalidLimitEngine;
+        impl QuoteEngine for InvalidLimitEngine {
+            fn fetch_quote(&self, _: &QuoteRequest) -> Result<QuoteEngineResponse, AzuroError> {
+                Ok(QuoteEngineResponse { quoted_odd: 1.9, marginal_odd: 1.92, max_payout_limit: f64::INFINITY })
+            }
+            fn max_payout(&self) -> Result<f64, AzuroError> { Ok(f64::INFINITY) }
+        }
+
+        let client = AzuroClient::new(AzuroConfig::default(), InvalidLimitEngine);
+        let err = client
+            .simulate_quote(&QuoteRequest { stake_usd: 25.0 })
+            .expect_err("invalid payout limit should be rejected");
+        assert_eq!(err.code(), AzuroErrorCode::Configuration);
+        assert!(err.detail().expect("detail").contains("limit=inf"));
     }
 
     #[test]

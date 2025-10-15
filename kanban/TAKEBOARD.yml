@@ -42,7 +42,13 @@ epics:
           status: In_Progress
           assignee: agent-otter-7
           notes: "Cache TTL court pour banques, gas, metadata SX/Azuro, sequencer."
-      In_Review: []
+      In_Review:
+        - id: E7-S1b
+          title: "Déduplication exports risk policy"
+          type: Task
+          status: In_Review
+          assignee: agent-otter-7
+          notes: "Nettoyage index.ts pour éviter les doublons RiskPolicy et rétablir la compilation."
       Done: []
   - id: EPIC-3
     title: "Bankroll & sizing multi-opérateurs"
@@ -51,7 +57,14 @@ epics:
     tickets:
       Backlog: []
       Ready: []
-      In_Progress: []
+      In_Progress:
+        - id: E3-S1-T4
+          title: "RuntimeRegistry unification & TTL guards"
+          type: Task
+          status: In_Progress
+          assignee: agent-otter-3
+          notes:
+            - "2024-07-05: Nettoyage duplication cache + invalidation"
       In_Review:
         - id: E3-S1
           title: "Politique de sizing & limites SX↔Azuro"
@@ -71,11 +84,15 @@ board:
   In_Progress:
     - epic: EPIC-7
       ticket: E7-S1
+    - epic: EPIC-3
+      ticket: E3-S1-T4
   In_Review:
     - epic: EPIC-7
       ticket: E7-S1a
     - epic: EPIC-7
       ticket: E7-S1a-T1
+    - epic: EPIC-7
+      ticket: E7-S1b
     - epic: EPIC-3
       ticket: E3-S1
     - epic: EPIC-3
@@ -110,17 +127,24 @@ epics:
         type: Task
         status: In_Review
         assignee: agent-otter-6
+      - id: E6-S1-T3
+        title: "CamelCase payloads & stake semantics"
+        type: Task
+        status: In_Progress
+        assignee: agent-otter-6
+        notes: "CamelCase serialization pour simulateQuote + distinction stake/amountToken."
 board:
   Ready: []
   In_Progress:
     - E6-S1
+    - E6-S1-T3
   In_Review:
     - E6-S1-T1
     - E6-S1-T2
   Done:
     - BLOCKER-TAKEBOARD
   Blocked: []
-updated_at: "2024-07-01T00:00:00Z"
+  updated_at: "2024-07-02T08:00:00Z"
 updated_at: "2024-06-11T00:00:00Z"
 updated_at: "2024-06-10T00:00:00Z"
 ---
@@ -163,8 +187,21 @@ epics:
           - "2024-06-30: Schéma MarketUID documenté (docs/mapping/market_uid.md)."
           - "2024-07-01: Propriétés génératives ajoutées (uid/dedup) + proptest."
           - "2024-07-02: Dataset seed 50 marchés versionné (data/market_uid_seed.csv)."
-    board: { Ready: [], In_Progress: [E8-S1], In_Review: [], Done: [], Blocked: [] }
-    updated_at: "2024-07-01T12:00:00Z"
+      - id: E8-S1-T2
+        title: "Générateur MarketUID TypeScript & export SDK"
+        type: Task
+        status: In_Progress
+        assignee: agent-otter-8
+        notes: "Implémentation module TS canonicalFingerprint + hashing, export SDK."
+    board:
+      Ready: []
+      In_Progress:
+        - E8-S1
+        - E8-S1-T2
+      In_Review: []
+      Done: []
+      Blocked: []
+    updated_at: "2024-07-05T12:30:00Z"
 epics:
   EPIC-5:
     title: "Connecteur SX Rollup"
@@ -178,8 +215,13 @@ epics:
         assignee: agent-otter-5
         notes:
           - "2024-06-13: Ajout du délai de grâce betting_delay dans le timeout heartbeat"
-    board: { Ready: [], In_Progress: [E5-S1], In_Review: [], Done: [], Blocked: [] }
-    updated_at: "2024-06-13T12:00:00Z"
+      - id: E5-S1-T1
+        title: "Client TS scaffolding (metadata & partial fills)"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-5
+    board: { Ready: [], In_Progress: [E5-S1], In_Review: [E5-S1-T1], Done: [], Blocked: [] }
+    updated_at: "2024-07-05T15:00:00Z"
 ---
 epics:
   EPIC-2:
@@ -195,10 +237,18 @@ epics:
         notes:
           - "Vault policies extended, CI smoke wired"
           - "2024-06-12: Vault AppRole client TS ready for review"
+      - id: E2-S1-T3
+        title: "Vault client réauth 401/403 + tests"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-2
+        notes:
+          - "Auto-réauth sur invalidation token et couverture tests node:test"
 board:
   Ready: []
   In_Progress: []
-  In_Review: []
+  In_Review:
+    - E2-S1-T3
   Done:
     - E2-S1
   Blocked: []
@@ -222,15 +272,23 @@ board:
         assignee: agent-otter-9
         notes:
           - "2024-06-12: Implémentation odds.ts + export core/index"
+      - id: E9-S1-T3
+        title: "Net margin gardes-fous & seuils"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-9
+        notes:
+          - "2024-07-05: NetMarginError + threshold evaluation (Rust execution crate)"
 board:
   Ready: []
   In_Progress:
     - E9-S1
-  In_Review: []
+  In_Review:
+    - E9-S1-T3
   Done:
     - E9-S1A
   Blocked: []
-  updated_at: "2024-06-12T09:00:00Z"
+  updated_at: "2024-07-05T09:00:00Z"
 
 epics:
   EPIC-4:

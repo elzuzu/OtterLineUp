@@ -25,8 +25,6 @@ export type RuntimeRegistryOptions = {
   fetchers: RuntimeFetchers;
   clock?: () => number;
 };
-export type RuntimeTtls = { bankMs: number; gasMs: number; sxMetadataMs: number; azuroLimitsMs: number; sequencerMs: number };
-export type RuntimeRegistryOptions = { ttl: RuntimeTtls; fetchers: RuntimeFetchers };
 
 type CacheEntry<T> = { value: T; expiresAt: number };
 type CacheSlot<T> = { entry: CacheEntry<T> | null; pending: Promise<T> | null };
@@ -68,7 +66,6 @@ export class RuntimeRegistry {
       if (!Number.isFinite(ttl) || ttl <= 0) {
         throw new Error(`RuntimeRegistry: ttl.${key} must be > 0`);
       }
-      if (!Number.isFinite(ttl) || ttl <= 0) throw new Error(`RuntimeRegistry: ttl.${key} must be > 0`);
     }
   }
 
@@ -96,47 +93,6 @@ export class RuntimeRegistry {
   async sequencerHealth(): Promise<SequencerStatus> {
     return this.resolve(this.seqSlot, this.options.ttl.sequencerMs, this.options.fetchers.sequencer, 'sequencer');
   }
-
-  private resolve<T>(slot: CacheSlot<T>, ttlMs: number, loader: () => Promise<T>): Promise<T> {
-    const entry = slot.entry;
-    const now = this.now();
-    if (entry && entry.expiresAt > now) {
-    if (entry && entry.expiresAt > Date.now()) return Promise.resolve(entry.value);
-    if (slot.pending) return slot.pending;
-    const pending = loader().then((value) => {
-      slot.entry = { value, expiresAt: Date.now() + ttlMs };
-      slot.pending = null;
-      return value;
-    }, (error) => {
-      slot.pending = null;
-      throw error;
-    });
-    if (entry && entry.expiresAt > Date.now()) {
-      return Promise.resolve(entry.value);
-    }
-    if (slot.pending) {
-      return slot.pending;
-    }
-    const pending = loader().then(
-      (value) => {
-        slot.entry = { value, expiresAt: this.now() + ttlMs };
-        slot.pending = null;
-        return value;
-      },
-      (error) => {
-        slot.pending = null;
-        throw error;
-      },
-    );
-        slot.entry = { value, expiresAt: Date.now() + ttlMs };
-        slot.pending = null;
-        return value;
-      },
-      (error) => {
-        slot.pending = null;
-        throw error;
-      },
-    );
 
   invalidate(): void {
     this.bankSlot.entry = null;

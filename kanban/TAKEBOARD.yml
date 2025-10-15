@@ -13,7 +13,7 @@ lanes:
     - B0-TKB
   Blocked: []
 meta:
-  updated_at: 2024-06-12T00:00:00Z
+  updated_at: 2024-06-30T00:00:00Z
   owner: lane-gouvernance
 ---
 version: 1
@@ -43,6 +43,7 @@ epics:
         - id: E3-S1
           title: "Politique de sizing & limites SX↔Azuro"
           assignee: agent-otter-3
+          notes: ["2024-06-12: Implémentation RiskPolicy TypeScript + configs risk/defaults"]
       In_Review: []
       Done: []
 board:
@@ -102,6 +103,8 @@ epics:
         type: Story
         status: In_Progress
         assignee: agent-otter-10
+        notes:
+          - "Auto-pause controller implémenté (évaluation fill-ratio/p95/sequencer)"
 board:
   Ready: []
   In_Progress:
@@ -112,8 +115,8 @@ board:
     status: In_Progress
     tickets:
       - { id: E8-S1, title: "Générateur d’UID marché SX↔Azuro", type: Story, status: In_Progress, assignee: agent-otter-8 }
-board: { Ready: [], In_Progress: [E8-S1], In_Review: [], Done: [], Blocked: [] }
-updated_at: "2024-06-11T00:00:00Z"
+    board: { Ready: [], In_Progress: [E8-S1], In_Review: [], Done: [], Blocked: [] }
+    updated_at: "2024-06-12T12:00:00Z"
 epics:
   EPIC-5:
     title: "Connecteur SX Rollup"
@@ -125,8 +128,8 @@ epics:
         type: Story
         status: In_Progress
         assignee: agent-otter-5
-board: { Ready: [], In_Progress: [E5-S1], In_Review: [], Done: [], Blocked: [] }
-updated_at: "2024-06-11T00:00:00Z"
+    board: { Ready: [], In_Progress: [E5-S1], In_Review: [], Done: [], Blocked: [] }
+    updated_at: "2024-06-12T12:00:00Z"
 ---
 epics:
   EPIC-2:
@@ -139,6 +142,7 @@ epics:
         type: Story
         status: In_Progress
         assignee: agent-otter-2
+        notes: "Vault policies extended, CI smoke wired"
 board:
   Ready: []
   In_Progress:
@@ -160,7 +164,7 @@ board:
   In_Review: []
   Done: []
   Blocked: []
-updated_at: "2024-06-12T00:00:00Z"
+  updated_at: "2024-06-12T09:00:00Z"
 
 epics:
   EPIC-4:
@@ -173,11 +177,17 @@ epics:
         type: Story
         status: In_Review
         assignee: agent-otter-4
-board:
-  Ready: []
-  In_Progress: []
-  In_Review:
-    - E4-S1
-  Done: []
-  Blocked: []
+      - id: E4-S2
+        title: "Métriques compliance (fill_ratio, p95, Δquote)"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-4
+    board:
+      Ready: []
+      In_Progress: []
+      In_Review:
+        - E4-S1
+        - E4-S2
+      Done: []
+      Blocked: []
 updated_at: "2024-06-11T18:00:00Z"

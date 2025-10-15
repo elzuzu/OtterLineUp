@@ -77,7 +77,7 @@ pub struct Quote { pub market_uid: String, pub side: String, pub odds: f64, pub 
 pub struct BetRequest { pub market_uid: String, pub side: String, pub odds: f64, pub stake: f64, pub odds_slippage: f64 }
 #[derive(Debug, Clone)]
 pub struct BetExecution { pub status: OrderStatus, pub fills: Vec<Fill>, pub requested_stake: f64, pub remaining_stake: f64 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Fill { pub fill_id: String, pub filled_stake: f64, pub odds: f64, pub accepted_at: Instant }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OrderStatus { Accepted, PartiallyAccepted, Void }
@@ -117,4 +117,101 @@ fn align_to_ladder(odds: f64, step: f64) -> Result<f64> {
         return Err(SxClientError::OddsOutOfLadder { odds, step });
     }
     Ok((odds / step).round() * step)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::Arc;
+
+    #[derive(Clone)]
+    struct StaticMetadata(SxMetadata);
+    #[async_trait]
+    impl MetadataProvider for StaticMetadata {
+        async fn latest(&self) -> Result<SxMetadata> { Ok(self.0.clone()) }
+    }
+
+    #[derive(Clone)]
+    struct StaticQuote(Quote);
+    #[async_trait]
+    impl QuoteSource for StaticQuote {
+        async fn best_quote(&self, _request: &QuoteRequest) -> Result<Quote> { Ok(self.0.clone()) }
+    }
+
+    #[derive(Clone)]
+    struct StaticExecutor(OrderResponse);
+    #[async_trait]
+    impl OrderExecutor for StaticExecutor {
+        async fn submit(&self, _order: PreparedOrder) -> Result<OrderResponse> { Ok(self.0.clone()) }
+    }
+
+    #[derive(Clone)]
+    struct SlowExecutor(Duration);
+    #[async_trait]
+    impl OrderExecutor for SlowExecutor {
+        async fn submit(&self, _order: PreparedOrder) -> Result<OrderResponse> {
+            time::sleep(self.0).await;
+            Ok(OrderResponse { status: OrderStatus::Accepted, fills: vec![] })
+        }
+    }
+
+    fn base_metadata() -> SxMetadata {
+        SxMetadata {
+            odds_ladder_step: 0.05,
+            betting_delay: Duration::from_secs(5),
+            heartbeat: Duration::from_secs(30),
+            max_odds_slippage: 0.03,
+            fetched_at: Instant::now(),
+        }
+    }
+
+    fn client(meta: SxMetadata, quote: Arc<dyn QuoteSource>, exec: Arc<dyn OrderExecutor>) -> SxClient {
+        SxClient::new(Duration::from_secs(60), Arc::new(StaticMetadata(meta)), quote, exec)
+    }
+
+    #[tokio::test]
+    async fn get_best_quote_aligns_to_ladder() {
+        let mut metadata = base_metadata();
+        metadata.heartbeat = Duration::from_secs(10);
+        metadata.max_odds_slippage = 0.02;
+        let quote = Quote { market_uid: "m1".into(), side: "back".into(), odds: 1.934, available_stake: 100.0 };
+        let client = client(metadata, Arc::new(StaticQuote(quote)), Arc::new(StaticExecutor(OrderResponse { status: OrderStatus::Accepted, fills: vec![] })));
+        let quote = client.get_best_quote(QuoteRequest { market_uid: "m1".into(), side: "back".into(), stake: 50.0 }).await.expect("quote");
+        assert!((quote.odds - 1.95).abs() < 1e-9);
+    }
+
+    #[tokio::test]
+    async fn place_bet_marks_partial_fill() {
+        let metadata = base_metadata();
+        let fills = vec![Fill { fill_id: "f1".into(), filled_stake: 60.0, odds: 1.92, accepted_at: Instant::now() }];
+        let executor = StaticExecutor(OrderResponse { status: OrderStatus::Accepted, fills: fills.clone() });
+        let client = client(metadata, Arc::new(StaticQuote(Quote { market_uid: "m1".into(), side: "back".into(), odds: 1.9, available_stake: 0.0 })), Arc::new(executor));
+        let execution = client
+            .place_bet(BetRequest { market_uid: "m1".into(), side: "back".into(), odds: 1.91, stake: 100.0, odds_slippage: 0.02 })
+            .await
+            .expect("bet execution");
+        assert_eq!(execution.status, OrderStatus::PartiallyAccepted);
+        assert!((execution.remaining_stake - 40.0).abs() < f64::EPSILON);
+        assert_eq!(execution.fills, fills);
+    }
+
+    #[tokio::test]
+    async fn place_bet_times_out_on_heartbeat() {
+        let mut metadata = base_metadata();
+        metadata.heartbeat = Duration::from_millis(20);
+        let client = client(metadata, Arc::new(StaticQuote(Quote { market_uid: "m1".into(), side: "lay".into(), odds: 1.9, available_stake: 0.0 })), Arc::new(SlowExecutor(Duration::from_millis(40))));
+        let result = client
+            .place_bet(BetRequest { market_uid: "m1".into(), side: "lay".into(), odds: 1.9, stake: 10.0, odds_slippage: 0.01 })
+            .await;
+        assert!(matches!(result, Err(SxClientError::HeartbeatTimeout)));
+    }
+
+    #[tokio::test]
+    async fn metadata_stale_is_rejected() {
+        let mut metadata = base_metadata();
+        metadata.fetched_at = Instant::now() - Duration::from_secs(61);
+        let client = client(metadata, Arc::new(StaticQuote(Quote { market_uid: "m1".into(), side: "back".into(), odds: 1.9, available_stake: 0.0 })), Arc::new(StaticExecutor(OrderResponse { status: OrderStatus::Accepted, fills: vec![] })));
+        let result = client.get_best_quote(QuoteRequest { market_uid: "m1".into(), side: "back".into(), stake: 10.0 }).await;
+        assert!(matches!(result, Err(SxClientError::MetadataStale { .. })));
+    }
 }

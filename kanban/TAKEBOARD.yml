@@ -97,6 +97,8 @@ board:
       ticket: E3-S1
     - epic: EPIC-3
       ticket: E3-S1-T3
+    - epic: EPIC-4
+      ticket: E4-S4
   Done: []
 epics:
   EPIC-6:
@@ -292,7 +294,7 @@ epics:
   EPIC-4:
     title: "Compliance & garde-fous réglementaires"
     owner: lane-compliance
-    status: Done
+    status: In_Progress
     tickets:
       - id: E4-S1
         title: "Cadre conformité CH & SX/Azuro"
@@ -311,13 +313,21 @@ epics:
         assignee: agent-otter-4
         notes:
           - "Auto-pause void rate threshold intégré dans complianceGuards."
+      - id: E4-S4
+        title: "Garde-fou REAL_MONEY config TypeScript"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-4
+        notes:
+          - "2024-07-05: assertRealMoneyEnabled dans complianceGuards + tests"
     board:
       Ready: []
       In_Progress: []
-      In_Review: []
+      In_Review:
+        - E4-S4
       Done:
         - E4-S1
         - E4-S2
         - E4-S3
       Blocked: []
-updated_at: "2024-07-01T13:00:00Z"
+updated_at: "2024-07-05T12:30:00Z"

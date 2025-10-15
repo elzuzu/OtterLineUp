@@ -20,6 +20,7 @@ const createSlot = <T>(): CacheSlot<T> => ({ entry: null, pending: null });
 
 export class RuntimeRegistry {
   private readonly bankSlot = createSlot<BankSnapshot>();
+
   private readonly gasSlots = new Map<string, CacheSlot<GasSnapshot>>();
   private readonly sxSlot = createSlot<SxMetadataSnapshot>();
   private readonly azuroSlot = createSlot<AzuroLimitsSnapshot>();
@@ -27,6 +28,9 @@ export class RuntimeRegistry {
 
   constructor(private readonly options: RuntimeRegistryOptions) {
     for (const [key, ttl] of Object.entries(options.ttl)) {
+      if (!Number.isFinite(ttl) || ttl <= 0) {
+        throw new Error(`RuntimeRegistry: ttl.${key} must be > 0`);
+      }
       if (!Number.isFinite(ttl) || ttl <= 0) throw new Error(`RuntimeRegistry: ttl.${key} must be > 0`);
     }
   }
@@ -36,7 +40,9 @@ export class RuntimeRegistry {
   }
 
   async getGas(chain: string): Promise<GasSnapshot> {
-    if (typeof chain !== 'string' || chain.length === 0) throw new Error('RuntimeRegistry: chain required for gas');
+    if (typeof chain !== 'string' || chain.length === 0) {
+      throw new Error('RuntimeRegistry: chain required for gas');
+    }
     const slot = this.gasSlots.get(chain) ?? createSlot<GasSnapshot>();
     this.gasSlots.set(chain, slot);
     return this.resolve(slot, this.options.ttl.gasMs, () => this.options.fetchers.gas(chain));
@@ -53,6 +59,26 @@ export class RuntimeRegistry {
   async sequencerHealth(): Promise<SequencerStatus> {
     return this.resolve(this.seqSlot, this.options.ttl.sequencerMs, this.options.fetchers.sequencer);
   }
+
+  private resolve<T>(slot: CacheSlot<T>, ttlMs: number, loader: () => Promise<T>): Promise<T> {
+    const entry = slot.entry;
+    if (entry && entry.expiresAt > Date.now()) {
+      return Promise.resolve(entry.value);
+    }
+    if (slot.pending) {
+      return slot.pending;
+    }
+    const pending = loader().then(
+      (value) => {
+        slot.entry = { value, expiresAt: Date.now() + ttlMs };
+        slot.pending = null;
+        return value;
+      },
+      (error) => {
+        slot.pending = null;
+        throw error;
+      },
+    );
 
   invalidate(): void {
     this.bankSlot.entry = null;

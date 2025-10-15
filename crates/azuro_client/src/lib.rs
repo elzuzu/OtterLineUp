@@ -30,6 +30,7 @@ pub struct QuoteSimulation {
     pub delta: f64,
     pub stake_usd: f64,
     pub expected_payout: f64,
+    pub payout_cap: f64,
 }
 
 pub struct AzuroClient<E: QuoteEngine> { config: Arc<RwLock<AzuroConfig>>, engine: E }
@@ -76,6 +77,7 @@ impl<E: QuoteEngine> AzuroClient<E> {
             delta,
             stake_usd: request.stake_usd,
             expected_payout: payout,
+            payout_cap: payout_limit,
         })
     }
 }
@@ -104,13 +106,16 @@ mod tests {
 
     #[test]
     fn accepts_quote_within_threshold() {
-        let engine = TestEngine { quote: QuoteEngineResponse { quoted_odd: 1.84, marginal_odd: 1.85, max_payout_limit: 1000.0 } };
+        let engine = TestEngine {
+            quote: QuoteEngineResponse { quoted_odd: 1.84, marginal_odd: 1.85, max_payout_limit: 1000.0 },
+        };
         let client = AzuroClient::new(AzuroConfig::default(), engine);
         let result = client
             .simulate_quote(&QuoteRequest { stake_usd: 50.0 })
             .expect("quote should be accepted");
         assert!((result.delta - 0.01).abs() < f64::EPSILON);
         assert!((result.expected_payout - 92.5).abs() < f64::EPSILON);
+        assert!((result.payout_cap - 1000.0).abs() < f64::EPSILON);
     }
 
     #[test]
@@ -124,5 +129,34 @@ mod tests {
             .expect_err("stake must be positive");
         assert_eq!(err.code(), AzuroErrorCode::Stake);
         assert_eq!(err.code_str(), "E-AZU-STAKE");
+    }
+
+    #[test]
+    fn rejects_when_payout_exceeds_cap() {
+        let engine = TestEngine {
+            quote: QuoteEngineResponse { quoted_odd: 1.84, marginal_odd: 2.0, max_payout_limit: 150.0 },
+        };
+        let client = AzuroClient::new(AzuroConfig::default(), engine);
+        let err = client
+            .simulate_quote(&QuoteRequest { stake_usd: 100.0 })
+            .expect_err("payout should exceed cap");
+        assert_eq!(err.code(), AzuroErrorCode::MaxPayout);
+        assert!(err
+            .detail()
+            .expect("detail")
+            .contains("limit=150.00"));
+    }
+
+    #[test]
+    fn reload_config_updates_threshold() {
+        let engine = TestEngine {
+            quote: QuoteEngineResponse { quoted_odd: 1.80, marginal_odd: 1.86, max_payout_limit: 500.0 },
+        };
+        let client = AzuroClient::new(AzuroConfig::default(), engine.clone());
+        client.reload_config(AzuroConfig { delta_odd_reject: 0.1 });
+        let result = client
+            .simulate_quote(&QuoteRequest { stake_usd: 50.0 })
+            .expect("quote should be accepted after reload");
+        assert!((result.delta - 0.06).abs() < f64::EPSILON);
     }
 }

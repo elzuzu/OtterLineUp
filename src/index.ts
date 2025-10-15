@@ -49,6 +49,8 @@ export { VaultClient, type VaultClientOptions, type VaultSecret, VaultError } fr
 export {
   canonicalFingerprint,
   marketUidFromIdentifier,
+  isMarketUid,
+  assertMarketUid,
   MarketUidError,
   type MarketIdentifier,
   type MarketUid,

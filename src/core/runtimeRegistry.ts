@@ -64,8 +64,10 @@ const computeExpiry = (value: unknown, ttlMs: number, label: string, now: number
   if (timestamp === null) {
     throw new Error(`RuntimeRegistry: ${label} snapshot missing timestamp`);
   }
-  if (timestamp === null) throw new Error(`RuntimeRegistry: ${label} snapshot missing timestamp`);
   const age = now - timestamp;
+  if (age < 0) {
+    throw new Error(`RuntimeRegistry: ${label} snapshot timestamp ${-age}ms in the future`);
+  }
   if (age > ttlMs) {
     throw new Error(`RuntimeRegistry: ${label} snapshot stale (age ${age}ms > ttl ${ttlMs}ms)`);
   }
@@ -150,11 +152,9 @@ export class RuntimeRegistry {
     }
     const pending = loader()
       .then((value) => {
-        const completionTime = this.now();
-        const expiresAt = computeExpiry(value, ttlMs, label, completionTime);
-        slot.entry = { value, expiresAt };
         const completedAt = this.now();
-        slot.entry = { value, expiresAt: computeExpiry(value, ttlMs, label, completedAt) };
+        const expiresAt = computeExpiry(value, ttlMs, label, completedAt);
+        slot.entry = { value, expiresAt };
         slot.pending = null;
         return value;
       })

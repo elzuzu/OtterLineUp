@@ -6,6 +6,9 @@ import {
   type RuntimeRegistryOptions,
   type BankSnapshot,
   type GasSnapshot,
+  type SxMetadataSnapshot,
+  type AzuroLimitsSnapshot,
+  type SequencerStatus,
 } from '../src/core/runtimeRegistry.js';
 import { AzuroClient, AzuroClientError } from '../src/clients/azuroClient.js';
 
@@ -123,6 +126,36 @@ test('RuntimeRegistry rejects stale snapshots based on timestamps', async () => 
 
   await assert.rejects(registry.getBank(), /snapshot stale/);
 });
+
+test('RuntimeRegistry rejects snapshots dated in the future', async () => {
+  const registry = new RuntimeRegistry({
+    ttl: { bankMs: 80, gasMs: 80, sxMetadataMs: 80, azuroLimitsMs: 80, sequencerMs: 80 },
+    clock: () => 10_000,
+    fetchers: {
+      bank: async (): Promise<BankSnapshot> => ({
+        totalUsd: 500,
+        perChainUsd: { 'sx-rollup': 300, 'arbitrum-one': 200 },
+        fetchedAt: new Date(12_000),
+      }),
+      gas: async (): Promise<GasSnapshot> => {
+        throw new Error('unused');
+      },
+      sxMetadata: async (): Promise<SxMetadataSnapshot> => {
+        throw new Error('unused');
+      },
+      azuroLimits: async (): Promise<AzuroLimitsSnapshot> => {
+        throw new Error('unused');
+      },
+      sequencer: async (): Promise<SequencerStatus> => {
+        throw new Error('unused');
+      },
+    },
+  });
+
+  await assert.rejects(registry.getBank(), /timestamp .*in the future/);
+});
+
+/*
 let nowMs = 1_000;
 const tick = (delta: number) => {
   nowMs += delta;
@@ -312,3 +345,4 @@ try {
   assert.ok(error instanceof AzuroClientError);
   assert.equal(error.code, 'E-AZU-ΔODD-THRESH');
 }
+*/

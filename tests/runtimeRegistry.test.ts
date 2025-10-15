@@ -68,3 +68,17 @@ await Promise.all([registry.getSxMetadata(), registry.getAzuroLimits(), registry
 assert.equal(sxCalls, 1);
 assert.equal(azuroCalls, 1);
 assert.equal(sequencerCalls, 1);
+
+const staleRegistry = new RuntimeRegistry({
+  ttl: opts.ttl,
+  fetchers: {
+    ...opts.fetchers,
+    bank: async (): Promise<BankSnapshot> => ({
+      totalUsd: 500,
+      perChainUsd: { 'sx-rollup': 300, 'arbitrum-one': 200 },
+      fetchedAt: new Date(Date.now() - 5_000),
+    }),
+  },
+});
+
+await assert.rejects(staleRegistry.getBank(), /snapshot stale/);

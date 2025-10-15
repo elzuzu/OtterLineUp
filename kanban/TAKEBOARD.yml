@@ -57,14 +57,7 @@ epics:
     tickets:
       Backlog: []
       Ready: []
-      In_Progress:
-        - id: E3-S1-T4
-          title: "RuntimeRegistry unification & TTL guards"
-          type: Task
-          status: In_Progress
-          assignee: agent-otter-3
-          notes:
-            - "2024-07-05: Nettoyage duplication cache + invalidation"
+      In_Progress: []
       In_Review:
         - id: E3-S1
           title: "Politique de sizing & limites SX↔Azuro"
@@ -77,6 +70,14 @@ epics:
           assignee: agent-otter-3
           notes:
             - "2024-07-01: RuntimeRegistry TTL caches pour bank/gas/metadata (support sizing)"
+        - id: E3-S1-T4
+          title: "RuntimeRegistry unification & TTL guards"
+          type: Task
+          status: In_Review
+          assignee: agent-otter-3
+          notes:
+            - "2024-07-05: Nettoyage duplication cache + invalidation"
+            - "2024-07-05: Guardes fraîcheur fetchers (timestamps & TTL)"
       Done: []
 board:
   Backlog: []
@@ -84,8 +85,6 @@ board:
   In_Progress:
     - epic: EPIC-7
       ticket: E7-S1
-    - epic: EPIC-3
-      ticket: E3-S1-T4
   In_Review:
     - epic: EPIC-7
       ticket: E7-S1a
@@ -97,6 +96,8 @@ board:
       ticket: E3-S1
     - epic: EPIC-3
       ticket: E3-S1-T3
+    - epic: EPIC-3
+      ticket: E3-S1-T4
   Done: []
 epics:
   EPIC-6:

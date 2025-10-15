@@ -9,7 +9,12 @@ members = [
 members = ["crates/execution", "crates/tools"]
 members = ["crates/execution", "crates/azuro_client"]
 members = [
+    "crates/azuro_client",
+    "crates/execution",
+    "crates/monitoring",
+    "crates/normalization",
     "crates/orchestrator",
+    "crates/sx_client",
     "crates/normalization",
     "crates/monitoring",
     "crates/sx_client",

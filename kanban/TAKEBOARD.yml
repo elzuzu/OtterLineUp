@@ -42,7 +42,13 @@ epics:
           status: In_Progress
           assignee: agent-otter-7
           notes: "Cache TTL court pour banques, gas, metadata SX/Azuro, sequencer."
-      In_Review: []
+      In_Review:
+        - id: E7-S1b
+          title: "Déduplication exports risk policy"
+          type: Task
+          status: In_Review
+          assignee: agent-otter-7
+          notes: "Nettoyage index.ts pour éviter les doublons RiskPolicy et rétablir la compilation."
       Done: []
   - id: EPIC-3
     title: "Bankroll & sizing multi-opérateurs"
@@ -76,6 +82,8 @@ board:
       ticket: E7-S1a
     - epic: EPIC-7
       ticket: E7-S1a-T1
+    - epic: EPIC-7
+      ticket: E7-S1b
     - epic: EPIC-3
       ticket: E3-S1
     - epic: EPIC-3

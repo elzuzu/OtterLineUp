@@ -82,6 +82,19 @@ board:
   Blocked: []
 updated_at: "2024-06-11T00:00:00Z"
 updated_at: "2024-06-10T00:00:00Z"
+epics:
+  EPIC-5:
+    title: "Connecteur SX Rollup"
+    owner: lane-sx
+    status: In_Progress
+    tickets:
+      - id: E5-S1
+        title: "Client temps réel SX Rollup (order & fills)"
+        type: Story
+        status: In_Progress
+        assignee: agent-otter-5
+board: { Ready: [], In_Progress: [E5-S1], In_Review: [], Done: [], Blocked: [] }
+updated_at: "2024-06-11T00:00:00Z"
 ---
 epics:
   EPIC-2:

@@ -214,6 +214,13 @@ epics:
         assignee: agent-otter-8
         notes:
           - "2024-07-06: Guard eventTimestamp invalid Date + tests"
+      - id: E8-S1-T4
+        title: "Validateur format MarketUID TypeScript"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-8
+        notes:
+          - "2024-07-06: isMarketUid + assertMarketUid (SDK TS)"
     board:
       Ready: []
       In_Progress:
@@ -221,6 +228,7 @@ epics:
       In_Review:
         - E8-S1-T2
         - E8-S1-T3
+        - E8-S1-T4
       Done: []
       Blocked: []
     updated_at: "2024-07-06T09:00:00Z"

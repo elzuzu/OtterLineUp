@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 const MARKET_UID_PREFIX = 'muid';
 const MARKET_UID_VERSION = 'v1';
+const MARKET_UID_PATTERN = /^muid-v1-[0-9a-f]{24}$/;
 
 export interface MarketIdentifier {
   operator: string;
@@ -16,10 +17,12 @@ export interface MarketIdentifier {
 
 export type MarketUid = string;
 export class MarketUidError extends Error {
-  readonly field: keyof MarketIdentifier;
+  readonly field: keyof MarketIdentifier | 'marketUid';
 
-  constructor(field: keyof MarketIdentifier) {
-    super(`missing required field \`${String(field)}\` for market UID generation`);
+  constructor(field: keyof MarketIdentifier | 'marketUid', message?: string) {
+    super(
+      message ?? `missing required field \`${String(field)}\` for market UID generation`,
+    );
     this.name = 'MarketUidError';
     this.field = field;
   }
@@ -55,6 +58,16 @@ export function marketUidFromIdentifier(identifier: MarketIdentifier): MarketUid
   const fingerprint = canonicalFingerprint(identifier);
   const digest = createHash('sha256').update(fingerprint).digest('hex');
   return `${MARKET_UID_PREFIX}-${MARKET_UID_VERSION}-${digest.slice(0, 24)}`;
+}
+
+export function isMarketUid(value: unknown): value is MarketUid {
+  return typeof value === 'string' && MARKET_UID_PATTERN.test(value);
+}
+
+export function assertMarketUid(value: unknown): asserts value is MarketUid {
+  if (!isMarketUid(value)) {
+    throw new MarketUidError('marketUid', 'invalid market UID format');
+  }
 }
 
 function normalizeRequired(

@@ -1,0 +1,9 @@
+[INFO] writing healthcheck log to evidence/healthcheck_20240705.log
+[OK] sx_rpc_http             https://rpc.sx.bet (182 ms)
+[OK] azu_rpc_http            https://arb1.arbitrum.io/rpc (174 ms)
+[OK] sx_market_data          https://api.sx.bet/markets (205 ms)
+[OK] sx_orders               https://api.sx.bet/trading (211 ms)
+[OK] azuro_graphql           https://api.azuro.org/graphql (232 ms)
+[OK] sx_ws                   wss://api.sx.bet/ws (198 ms)
+[OK] azu_ws                  wss://arb1.arbitrum.io/ws (206 ms)
+[OK] healthcheck complete

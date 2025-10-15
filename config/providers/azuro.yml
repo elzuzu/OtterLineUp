@@ -1,0 +1,16 @@
+providers:
+  azuro:
+    name: "Azuro"
+    hedging_mode: "liquidity_tree"
+    simulate_quote:
+      delta_odd_reject: 0.02
+      max_slippage: 0.03
+    endpoints:
+      graphql: "https://api.azuro.org/graphql"
+      private_tx_relay: "https://relay.azuro.org"
+    limits:
+      max_payout_usdc: 2500
+      min_quote_liquidity: 200
+    gas:
+      priority_gwei: 0.15
+      max_gwei: 0.5

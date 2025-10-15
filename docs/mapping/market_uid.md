@@ -75,3 +75,9 @@ let identifier = MarketIdentifier {
 let uid = MarketUid::from_identifier(&identifier)?;
 println!("{}", uid);
 ```
+
+## Jeu de données seed
+
+Une extraction de 50 marchés pilotes (mix SX/Azuro, sports majeurs) est versionnée dans `data/market_uid_seed.csv`.
+Chaque ligne expose les métadonnées sources et le `MarketUID` généré.
+Ces données facilitent la validation de la normalisation et de la déduplication en bout en bout.

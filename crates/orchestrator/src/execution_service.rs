@@ -1,4 +1,5 @@
 use crate::config::ExecConfig;
+use std::time::SystemTime;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct AutoPauseConfig {
@@ -28,11 +29,34 @@ pub struct RuntimeHealth {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct AutoPauseDecision {
+    pub reason: AutoPauseReason,
+    pub evaluated_at: SystemTime,
+}
+
+impl AutoPauseDecision {
+    pub fn metric_label(&self) -> &'static str {
+        self.reason.metric_label()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum AutoPauseReason {
     SequencerDown,
     SxRpcDown,
     FillRatioLow { fill_ratio: f64, min: f64 },
     AcceptTimeHigh { p95_ms: u64, max_ms: u64 },
+}
+
+impl AutoPauseReason {
+    pub fn metric_label(&self) -> &'static str {
+        match self {
+            AutoPauseReason::SequencerDown => "sequencer_down",
+            AutoPauseReason::SxRpcDown => "sx_rpc_down",
+            AutoPauseReason::FillRatioLow { .. } => "fill_ratio_low",
+            AutoPauseReason::AcceptTimeHigh { .. } => "accept_time_high",
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -50,6 +74,14 @@ impl AutoPauseController {
     }
 
     pub fn evaluate(
+        &self,
+        metrics: MetricsWindow,
+        runtime: RuntimeHealth,
+    ) -> Option<AutoPauseReason> {
+        self.evaluate_reason(metrics, runtime)
+    }
+
+    fn evaluate_reason(
         &self,
         metrics: MetricsWindow,
         runtime: RuntimeHealth,
@@ -73,5 +105,15 @@ impl AutoPauseController {
             });
         }
         None
+    }
+
+    pub fn evaluate_with_timestamp(
+        &self,
+        metrics: MetricsWindow,
+        runtime: RuntimeHealth,
+        evaluated_at: SystemTime,
+    ) -> Option<AutoPauseDecision> {
+        self.evaluate_reason(metrics, runtime)
+            .map(|reason| AutoPauseDecision { reason, evaluated_at })
     }
 }

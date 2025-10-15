@@ -6,14 +6,14 @@ epics:
 lanes:
   Backlog: []
   Ready: []
-  In_Progress:
+  In_Progress: []
+  In_Review:
     - E1-S1
-  In_Review: []
   Done:
     - B0-TKB
   Blocked: []
 meta:
-  updated_at: 2024-07-01T09:00:00Z
+  updated_at: 2024-07-05T12:00:00Z
   owner: lane-gouvernance
 ---
 version: 1
@@ -36,6 +36,12 @@ epics:
           status: In_Progress
           assignee: agent-otter-7
           notes: "Implémentation binaire balance_watcher (poll RuntimeRegistry, alertes < seuil)."
+        - id: E7-S1a-T1
+          title: "RuntimeRegistry cache banque & métadonnées"
+          type: Task
+          status: In_Progress
+          assignee: agent-otter-7
+          notes: "Cache TTL court pour banques, gas, metadata SX/Azuro, sequencer."
       In_Review: []
       Done: []
   - id: EPIC-3
@@ -68,6 +74,8 @@ board:
   In_Review:
     - epic: EPIC-7
       ticket: E7-S1a
+    - epic: EPIC-7
+      ticket: E7-S1a-T1
     - epic: EPIC-3
       ticket: E3-S1
     - epic: EPIC-3
@@ -98,19 +106,19 @@ epics:
       - id: E6-S1-T2
         title: "Payout cap exposure & config reload"
         type: Task
-        status: In_Progress
+        status: In_Review
         assignee: agent-otter-6
 board:
   Ready: []
   In_Progress:
     - E6-S1
-    - E6-S1-T2
   In_Review:
     - E6-S1-T1
+    - E6-S1-T2
   Done:
     - BLOCKER-TAKEBOARD
   Blocked: []
-updated_at: "2024-06-13T12:00:00Z"
+updated_at: "2024-07-01T00:00:00Z"
 updated_at: "2024-06-11T00:00:00Z"
 updated_at: "2024-06-10T00:00:00Z"
 ---
@@ -127,10 +135,18 @@ epics:
         assignee: agent-otter-10
         notes:
           - "Auto-pause controller implémenté (évaluation fill-ratio/p95/sequencer)"
-board:
-  Ready: []
-  In_Progress:
-    - E10-S1
+          - "2024-06-30: Raison d'auto-pause exposée en labels pour instrumentation"
+      - id: E10-S1-T1
+        title: "Auto-pause decision struct & horodatage"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-10
+    board:
+      Ready: []
+      In_Progress:
+        - E10-S1
+      In_Review:
+        - E10-S1-T1
   EPIC-8:
     title: "Normalisation marchés & mapping"
     owner: lane-normalisation
@@ -143,8 +159,10 @@ board:
         assignee: agent-otter-8
         notes:
           - "2024-06-30: Schéma MarketUID documenté (docs/mapping/market_uid.md)."
+          - "2024-07-01: Propriétés génératives ajoutées (uid/dedup) + proptest."
+          - "2024-07-02: Dataset seed 50 marchés versionné (data/market_uid_seed.csv)."
     board: { Ready: [], In_Progress: [E8-S1], In_Review: [], Done: [], Blocked: [] }
-    updated_at: "2024-06-30T12:00:00Z"
+    updated_at: "2024-07-01T12:00:00Z"
 epics:
   EPIC-5:
     title: "Connecteur SX Rollup"
@@ -170,13 +188,18 @@ epics:
       - id: E2-S1
         title: "Coffre-fort & rotation des clés SX/Azuro"
         type: Story
-        status: In_Progress
+        status: Done
         assignee: agent-otter-2
-        notes: "Vault policies extended, CI smoke wired"
+        notes:
+          - "Vault policies extended, CI smoke wired"
+          - "2024-06-12: Vault AppRole client TS ready for review"
 board:
   Ready: []
-  In_Progress:
+  In_Progress: []
+  In_Review: []
+  Done:
     - E2-S1
+  Blocked: []
   EPIC-9:
     title: "Exécution & risk engines"
     owner: lane-execution
@@ -187,12 +210,22 @@ board:
         type: Story
         status: In_Progress
         assignee: agent-otter-9
+        notes:
+          - "2024-06-12: SDK TypeScript expose conversions & m_net (micro-lot 1)"
+      - id: E9-S1A
+        title: "Module TS convertisseurs odds & net margin"
+        type: Task
+        status: Done
+        assignee: agent-otter-9
+        notes:
+          - "2024-06-12: Implémentation odds.ts + export core/index"
 board:
   Ready: []
   In_Progress:
     - E9-S1
   In_Review: []
-  Done: []
+  Done:
+    - E9-S1A
   Blocked: []
   updated_at: "2024-06-12T09:00:00Z"
 
@@ -200,24 +233,24 @@ epics:
   EPIC-4:
     title: "Compliance & garde-fous réglementaires"
     owner: lane-compliance
-    status: In_Progress
+    status: Done
     tickets:
       - id: E4-S1
         title: "Cadre conformité CH & SX/Azuro"
         type: Story
-        status: In_Review
+        status: Done
         assignee: agent-otter-4
       - id: E4-S2
         title: "Métriques compliance (fill_ratio, p95, Δquote)"
         type: Task
-        status: In_Review
+        status: Done
         assignee: agent-otter-4
     board:
       Ready: []
       In_Progress: []
-      In_Review:
+      In_Review: []
+      Done:
         - E4-S1
         - E4-S2
-      Done: []
       Blocked: []
-updated_at: "2024-06-11T18:00:00Z"
+updated_at: "2024-07-01T00:00:00Z"

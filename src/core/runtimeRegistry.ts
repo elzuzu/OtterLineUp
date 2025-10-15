@@ -3,12 +3,27 @@ export type GasSnapshot = { chain: string; priceGwei: number; fetchedAt: Date };
 export type SxMetadataSnapshot = { oddsLadder: number[]; bettingDelayMs: number; heartbeatMs: number; fetchedAt: Date };
 export type AzuroLimitsSnapshot = { maxPayoutUsd: number; quoteMargin: number; fetchedAt: Date };
 export type SequencerStatus = { chain: string; healthy: boolean; checkedAt: Date };
+
 export type RuntimeFetchers = {
   bank: () => Promise<BankSnapshot>;
   gas: (chain: string) => Promise<GasSnapshot>;
   sxMetadata: () => Promise<SxMetadataSnapshot>;
   azuroLimits: () => Promise<AzuroLimitsSnapshot>;
   sequencer: () => Promise<SequencerStatus>;
+};
+
+export type RuntimeTtls = {
+  bankMs: number;
+  gasMs: number;
+  sxMetadataMs: number;
+  azuroLimitsMs: number;
+  sequencerMs: number;
+};
+
+export type RuntimeRegistryOptions = {
+  ttl: RuntimeTtls;
+  fetchers: RuntimeFetchers;
+  clock?: () => number;
 };
 export type RuntimeTtls = { bankMs: number; gasMs: number; sxMetadataMs: number; azuroLimitsMs: number; sequencerMs: number };
 export type RuntimeRegistryOptions = { ttl: RuntimeTtls; fetchers: RuntimeFetchers };
@@ -25,8 +40,10 @@ export class RuntimeRegistry {
   private readonly sxSlot = createSlot<SxMetadataSnapshot>();
   private readonly azuroSlot = createSlot<AzuroLimitsSnapshot>();
   private readonly seqSlot = createSlot<SequencerStatus>();
+  private readonly now: () => number;
 
   constructor(private readonly options: RuntimeRegistryOptions) {
+    this.now = options.clock ?? (() => Date.now());
     for (const [key, ttl] of Object.entries(options.ttl)) {
       if (!Number.isFinite(ttl) || ttl <= 0) {
         throw new Error(`RuntimeRegistry: ttl.${key} must be > 0`);
@@ -62,6 +79,8 @@ export class RuntimeRegistry {
 
   private resolve<T>(slot: CacheSlot<T>, ttlMs: number, loader: () => Promise<T>): Promise<T> {
     const entry = slot.entry;
+    const now = this.now();
+    if (entry && entry.expiresAt > now) {
     if (entry && entry.expiresAt > Date.now()) return Promise.resolve(entry.value);
     if (slot.pending) return slot.pending;
     const pending = loader().then((value) => {
@@ -80,6 +99,15 @@ export class RuntimeRegistry {
     }
     const pending = loader().then(
       (value) => {
+        slot.entry = { value, expiresAt: this.now() + ttlMs };
+        slot.pending = null;
+        return value;
+      },
+      (error) => {
+        slot.pending = null;
+        throw error;
+      },
+    );
         slot.entry = { value, expiresAt: Date.now() + ttlMs };
         slot.pending = null;
         return value;

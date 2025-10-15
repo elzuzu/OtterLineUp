@@ -218,13 +218,21 @@ epics:
         assignee: agent-otter-5
         notes:
           - "2024-06-13: Ajout du délai de grâce betting_delay dans le timeout heartbeat"
+          - "2024-07-05: RuntimeRegistry typed snapshots + TTL clock injection (micro-lot 3)"
       - id: E5-S1-T1
         title: "Client TS scaffolding (metadata & partial fills)"
         type: Task
         status: In_Review
         assignee: agent-otter-5
-    board: { Ready: [], In_Progress: [E5-S1], In_Review: [E5-S1-T1], Done: [], Blocked: [] }
-    updated_at: "2024-07-05T15:00:00Z"
+      - id: E5-S1-T4
+        title: "RuntimeRegistry cache harmonisation (SX feed)"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-5
+        notes:
+          - "2024-07-05: Normalisation snapshots + inflight dedupe (agent-otter-5)"
+    board: { Ready: [], In_Progress: [E5-S1], In_Review: [E5-S1-T1, E5-S1-T4], Done: [], Blocked: [] }
+    updated_at: "2024-07-05T16:45:00Z"
 ---
 epics:
   EPIC-2:

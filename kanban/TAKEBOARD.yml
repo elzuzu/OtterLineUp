@@ -13,7 +13,7 @@ lanes:
     - B0-TKB
   Blocked: []
 meta:
-  updated_at: 2024-07-05T12:00:00Z
+  updated_at: 2024-07-05T18:15:00Z
   owner: lane-gouvernance
 ---
 version: 1
@@ -90,6 +90,8 @@ board:
   Backlog: []
   Ready: []
   In_Progress:
+    - epic: EPIC-1
+      ticket: E1-S1
     - epic: EPIC-7
       ticket: E7-S1
     - epic: EPIC-3

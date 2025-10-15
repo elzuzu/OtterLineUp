@@ -104,6 +104,8 @@ board:
       ticket: E4-S4
     - epic: EPIC-2
       ticket: E2-S1-T4
+    - epic: EPIC-2
+      ticket: E2-S1-T5
   Done: []
 epics:
   EPIC-6:
@@ -296,12 +298,20 @@ epics:
         assignee: agent-otter-2
         notes:
           - "Automatiser append audit JSON depuis scripts/vault_smoke.sh"
+      - id: E2-S1-T5
+        title: "Rotation API: écriture sécurisée KV v2"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-2
+        notes:
+          - "VaultClient expose writeSecret avec re-auth automatique"
 board:
   Ready: []
   In_Progress: []
   In_Review:
     - E2-S1-T3
     - E2-S1-T4
+    - E2-S1-T5
   Done:
     - E2-S1
   Blocked: []

@@ -25,8 +25,6 @@ export type RuntimeRegistryOptions = {
   fetchers: RuntimeFetchers;
   clock?: () => number;
 };
-export type RuntimeTtls = { bankMs: number; gasMs: number; sxMetadataMs: number; azuroLimitsMs: number; sequencerMs: number };
-export type RuntimeRegistryOptions = { ttl: RuntimeTtls; fetchers: RuntimeFetchers };
 
 type CacheEntry<T> = { value: T; expiresAt: number };
 type CacheSlot<T> = { entry: CacheEntry<T> | null; pending: Promise<T> | null };
@@ -44,10 +42,9 @@ const extractTimestamp = (value: unknown): number | null => {
   return null;
 };
 
-const computeExpiry = (value: unknown, ttlMs: number, label: string): number => {
+const computeExpiry = (value: unknown, ttlMs: number, label: string, now: number): number => {
   const timestamp = extractTimestamp(value);
   if (timestamp === null) throw new Error(`RuntimeRegistry: ${label} snapshot missing timestamp`);
-  const now = Date.now();
   const age = now - timestamp;
   if (age > ttlMs) throw new Error(`RuntimeRegistry: ${label} snapshot stale (age ${age}ms > ttl ${ttlMs}ms)`);
   return Math.min(now, timestamp) + ttlMs;
@@ -99,61 +96,6 @@ export class RuntimeRegistry {
     return this.resolve(this.seqSlot, this.options.ttl.sequencerMs, this.options.fetchers.sequencer, 'sequencer');
   }
 
-  private resolve<T>(slot: CacheSlot<T>, ttlMs: number, loader: () => Promise<T>): Promise<T> {
-    const entry = slot.entry;
-    const now = Date.now();
-    if (entry && entry.expiresAt > now) return Promise.resolve(entry.value);
-    if (slot.pending) return slot.pending;
-    const pending = loader().then(
-      (value) => {
-        slot.entry = { value, expiresAt: Date.now() + ttlMs };
-        slot.pending = null;
-        return value;
-      },
-      (error) => {
-        slot.pending = null;
-        throw error;
-      },
-    );
-    const now = this.now();
-    if (entry && entry.expiresAt > now) {
-    if (entry && entry.expiresAt > Date.now()) return Promise.resolve(entry.value);
-    if (slot.pending) return slot.pending;
-    const pending = loader().then((value) => {
-      slot.entry = { value, expiresAt: Date.now() + ttlMs };
-      slot.pending = null;
-      return value;
-    }, (error) => {
-      slot.pending = null;
-      throw error;
-    });
-    if (entry && entry.expiresAt > Date.now()) {
-      return Promise.resolve(entry.value);
-    }
-    if (slot.pending) {
-      return slot.pending;
-    }
-    const pending = loader().then(
-      (value) => {
-        slot.entry = { value, expiresAt: this.now() + ttlMs };
-        slot.pending = null;
-        return value;
-      },
-      (error) => {
-        slot.pending = null;
-        throw error;
-      },
-    );
-        slot.entry = { value, expiresAt: Date.now() + ttlMs };
-        slot.pending = null;
-        return value;
-      },
-      (error) => {
-        slot.pending = null;
-        throw error;
-      },
-    );
-
   invalidate(): void {
     this.bankSlot.entry = null;
     this.bankSlot.pending = null;
@@ -166,14 +108,9 @@ export class RuntimeRegistry {
     this.gasSlots.clear();
   }
 
-  private resolve<T>(
-    slot: CacheSlot<T>,
-    ttlMs: number,
-    loader: () => Promise<T>,
-  ): Promise<T> {
   private resolve<T>(slot: CacheSlot<T>, ttlMs: number, loader: () => Promise<T>, label: string): Promise<T> {
     const entry = slot.entry;
-    const now = Date.now();
+    const now = this.now();
     if (entry && entry.expiresAt > now) {
       return Promise.resolve(entry.value);
     }
@@ -182,7 +119,8 @@ export class RuntimeRegistry {
     }
     const pending = loader()
       .then((value) => {
-        slot.entry = { value, expiresAt: computeExpiry(value, ttlMs, label) };
+        const completedAt = this.now();
+        slot.entry = { value, expiresAt: computeExpiry(value, ttlMs, label, completedAt) };
         slot.pending = null;
         return value;
       })

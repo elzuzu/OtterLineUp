@@ -1,4 +1,5 @@
 use crate::config::ExecConfig;
+use std::time::SystemTime;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct AutoPauseConfig {
@@ -25,6 +26,18 @@ pub struct MetricsWindow {
 pub struct RuntimeHealth {
     pub sequencer_up: bool,
     pub sx_rpc_up: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct AutoPauseDecision {
+    pub reason: AutoPauseReason,
+    pub evaluated_at: SystemTime,
+}
+
+impl AutoPauseDecision {
+    pub fn metric_label(&self) -> &'static str {
+        self.reason.metric_label()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -65,6 +78,14 @@ impl AutoPauseController {
         metrics: MetricsWindow,
         runtime: RuntimeHealth,
     ) -> Option<AutoPauseReason> {
+        self.evaluate_reason(metrics, runtime)
+    }
+
+    fn evaluate_reason(
+        &self,
+        metrics: MetricsWindow,
+        runtime: RuntimeHealth,
+    ) -> Option<AutoPauseReason> {
         if !runtime.sequencer_up {
             return Some(AutoPauseReason::SequencerDown);
         }
@@ -84,5 +105,15 @@ impl AutoPauseController {
             });
         }
         None
+    }
+
+    pub fn evaluate_with_timestamp(
+        &self,
+        metrics: MetricsWindow,
+        runtime: RuntimeHealth,
+        evaluated_at: SystemTime,
+    ) -> Option<AutoPauseDecision> {
+        self.evaluate_reason(metrics, runtime)
+            .map(|reason| AutoPauseDecision { reason, evaluated_at })
     }
 }

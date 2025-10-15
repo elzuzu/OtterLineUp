@@ -1,5 +1,5 @@
 use crate::config::ExecConfig;
-use std::time::SystemTime;
+use std::{mem::discriminant, time::SystemTime};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct AutoPauseConfig {
@@ -124,5 +124,59 @@ impl AutoPauseController {
     ) -> Option<AutoPauseDecision> {
         self.evaluate_reason(metrics, runtime)
             .map(|reason| AutoPauseDecision { reason, evaluated_at })
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct AutoPauseTracker {
+    controller: AutoPauseController,
+    last_decision: Option<AutoPauseDecision>,
+}
+
+impl AutoPauseTracker {
+    pub fn new(controller: AutoPauseController) -> Self {
+        Self {
+            controller,
+            last_decision: None,
+        }
+    }
+
+    pub fn from_exec_config(exec: &ExecConfig) -> Self {
+        Self::new(AutoPauseController::new(AutoPauseConfig::from(exec)))
+    }
+
+    pub fn update_from_exec(&mut self, exec: &ExecConfig) {
+        self.controller.update_from_exec(exec);
+    }
+
+    pub fn evaluate(
+        &mut self,
+        metrics: MetricsWindow,
+        runtime: RuntimeHealth,
+        evaluated_at: SystemTime,
+    ) -> Option<AutoPauseDecision> {
+        let decision = self
+            .controller
+            .evaluate_with_timestamp(metrics, runtime, evaluated_at);
+
+        match decision {
+            Some(ref new_decision) => {
+                let should_emit = self
+                    .last_decision
+                    .as_ref()
+                    .map(|last| discriminant(&last.reason) != discriminant(&new_decision.reason))
+                    .unwrap_or(true);
+                self.last_decision = Some(new_decision.clone());
+                if should_emit {
+                    Some(new_decision.clone())
+                } else {
+                    None
+                }
+            }
+            None => {
+                self.last_decision = None;
+                None
+            }
+        }
     }
 }

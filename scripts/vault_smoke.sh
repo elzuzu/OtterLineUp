@@ -69,16 +69,20 @@ vault_login(){
 
 verify_secret(){
   local token="$1" path="$2" raw_keys="$3" label="$4" response data request_id
-  response=$(curl -sS --fail -H "X-Vault-Token: $token" "$VAULT_ADDR/v1/$path") || {
-    echo "[vault-smoke] read failure for $label at $path" >&2; exit 1; }
+  if ! response=$(curl -sS --fail -H "X-Vault-Token: $token" "$VAULT_ADDR/v1/$path"); then
+    append_audit "$(audit_entry "$label" "$path" "" "failure")"
+    echo "[vault-smoke] read failure for $label at $path" >&2; exit 1; fi
   data=$(jq '.data.data' <<<"$response")
-  [[ "$data" != "null" ]] || { echo "[vault-smoke] empty payload for $label" >&2; exit 1; }
   request_id=$(jq -r '.request_id // empty' <<<"$response")
+  if [[ "$data" == "null" ]]; then
+    append_audit "$(audit_entry "$label" "$path" "$request_id" "failure")"
+    echo "[vault-smoke] empty payload for $label" >&2; exit 1; fi
   IFS=',' read -r -a keys <<<"$raw_keys"
   for key in "${keys[@]}"; do
     key="${key// /}"; [[ -z "$key" ]] && continue
-    jq -e --arg key "$key" 'has($key)' <<<"$data" >/dev/null || {
-      echo "[vault-smoke] missing key $key for $label" >&2; exit 1; }
+    if ! jq -e --arg key "$key" 'has($key)' <<<"$data" >/dev/null; then
+      append_audit "$(audit_entry "$label" "$path" "$request_id" "failure")"
+      echo "[vault-smoke] missing key $key for $label" >&2; exit 1; fi
   done
   printf '%s\n' "$request_id"
 }

@@ -1,4 +1,8 @@
-import { assertRealMoneyEnabled, evaluateMetricsCompliance } from '../src/ops/complianceGuards.js';
+import {
+  assertRealMoneyEnabled,
+  deriveComplianceThresholds,
+  evaluateMetricsCompliance,
+} from '../src/ops/complianceGuards.js';
 import { MetricsSnapshot } from '../src/ops/metrics.js';
 
 const baseSnapshot: MetricsSnapshot = {
@@ -83,3 +87,21 @@ for (const invalid of [undefined, {}, { exec: {} }, { exec: { real_money: false 
     console.assert(error instanceof Error, 'invalid REAL_MONEY payload should throw Error');
   }
 }
+
+const derived = deriveComplianceThresholds(
+  {
+    exec: {
+      fill_ratio_min: 0.62,
+      p95_accept_time_ms_max: 880,
+      delta_odd_reject: 0.018,
+      threshold_net_pct: 0.017,
+    },
+  },
+  { minSampleSize: 20, maxVoidRate: 0.12 },
+);
+console.assert(derived.minFillRatio === 0.62, 'derived minFillRatio mismatch');
+console.assert(derived.maxP95AcceptTimeMs === 880, 'derived maxP95AcceptTimeMs mismatch');
+console.assert(derived.maxDeltaQuoteToFill === 0.018, 'derived maxDeltaQuoteToFill mismatch');
+console.assert(derived.minNetMarginPct === 0.017, 'derived minNetMarginPct mismatch');
+console.assert(derived.minSampleSize === 20, 'derived minSampleSize mismatch');
+console.assert(derived.maxVoidRate === 0.12, 'derived maxVoidRate mismatch');

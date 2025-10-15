@@ -42,10 +42,9 @@ const extractTimestamp = (value: unknown): number | null => {
   return null;
 };
 
-const computeExpiry = (value: unknown, ttlMs: number, label: string): number => {
+const computeExpiry = (value: unknown, ttlMs: number, label: string, now: number): number => {
   const timestamp = extractTimestamp(value);
   if (timestamp === null) throw new Error(`RuntimeRegistry: ${label} snapshot missing timestamp`);
-  const now = Date.now();
   const age = now - timestamp;
   if (age > ttlMs) throw new Error(`RuntimeRegistry: ${label} snapshot stale (age ${age}ms > ttl ${ttlMs}ms)`);
   return Math.min(now, timestamp) + ttlMs;
@@ -55,8 +54,11 @@ export class RuntimeRegistry {
   private readonly bankSlot = createSlot<BankSnapshot>();
 
   private readonly gasSlots = new Map<string, CacheSlot<GasSnapshot>>();
+
   private readonly sxSlot = createSlot<SxMetadataSnapshot>();
+
   private readonly azuroSlot = createSlot<AzuroLimitsSnapshot>();
+
   private readonly seqSlot = createSlot<SequencerStatus>();
   private readonly now: () => number;
 
@@ -108,12 +110,17 @@ export class RuntimeRegistry {
 
   private resolve<T>(slot: CacheSlot<T>, ttlMs: number, loader: () => Promise<T>, label: string): Promise<T> {
     const entry = slot.entry;
-    const now = Date.now();
-    if (entry && entry.expiresAt > now) return Promise.resolve(entry.value);
-    if (slot.pending) return slot.pending;
+    const now = this.now();
+    if (entry && entry.expiresAt > now) {
+      return Promise.resolve(entry.value);
+    }
+    if (slot.pending) {
+      return slot.pending;
+    }
     const pending = loader()
       .then((value) => {
-        slot.entry = { value, expiresAt: computeExpiry(value, ttlMs, label) };
+        const completedAt = this.now();
+        slot.entry = { value, expiresAt: computeExpiry(value, ttlMs, label, completedAt) };
         slot.pending = null;
         return value;
       })

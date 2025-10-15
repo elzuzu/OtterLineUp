@@ -1,0 +1,31 @@
+chains:
+  sx_rollup:
+    name: "SX Rollup"
+    layer: "Arbitrum Orbit"
+    chain_id: 1257787536744045
+    currency: "USDC"
+    settlement_asset: "ETH"
+    rpc:
+      http: "https://rpc.sx.bet"
+      websocket: "wss://api.sx.bet/ws"
+    rest:
+      market_data: "https://api.sx.bet/markets"
+      orders: "https://api.sx.bet/trading"
+    execution:
+      ttl_ms: 800
+      betting_delay_ms: 1000
+      heartbeat_interval_ms: 5000
+  arbitrum_one:
+    name: "Arbitrum One"
+    layer: "L2"
+    chain_id: 42161
+    currency: "USDC"
+    settlement_asset: "ETH"
+    rpc:
+      http: "https://arb1.arbitrum.io/rpc"
+      websocket: "wss://arb1.arbitrum.io/ws"
+    rest:
+      azuro_graphql: "https://api.azuro.org/graphql"
+    execution:
+      ttl_ms: 2500
+      private_tx_relay: "https://relay.azuro.org"

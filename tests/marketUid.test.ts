@@ -36,6 +36,15 @@ assert.throws(() => canonicalFingerprint({ ...baseIdentifier, event: '   ' }), (
   return true;
 });
 
+assert.throws(
+  () => marketUidFromIdentifier({ ...baseIdentifier, eventTimestamp: new Date('invalid-date') }),
+  (error: unknown) => {
+    assert.ok(error instanceof MarketUidError);
+    assert.equal(error.field, 'eventTimestamp');
+    return true;
+  },
+);
+
 const [header, ...rows] = readFileSync('data/market_uid_seed.csv', 'utf8').trim().split('\n');
 assert.equal(header, 'operator,sport,league,event,market_type,outcome,variant,ladder,event_timestamp,market_uid');
 

@@ -87,7 +87,15 @@ function normalizeOptional(value: string | null | undefined): string {
 }
 
 function truncateTimestamp(timestamp: Date): string {
+  if (!(timestamp instanceof Date)) {
+    throw new MarketUidError('eventTimestamp');
+  }
+
   const millis = timestamp.getTime();
+  if (Number.isNaN(millis)) {
+    throw new MarketUidError('eventTimestamp');
+  }
+
   const truncated = new Date(Math.trunc(millis / 60_000) * 60_000);
   const year = truncated.getUTCFullYear().toString().padStart(4, '0');
   const month = (truncated.getUTCMonth() + 1).toString().padStart(2, '0');

@@ -47,3 +47,17 @@ fn update_from_exec_refreshes_thresholds() {
         .expect("pause on p95");
     assert!(matches!(reason, AutoPauseReason::AcceptTimeHigh { p95_ms, max_ms } if p95_ms == 950 && max_ms == 900));
 }
+
+#[test]
+fn metric_label_maps_reason_to_static_key() {
+    assert_eq!(AutoPauseReason::SequencerDown.metric_label(), "sequencer_down");
+    assert_eq!(AutoPauseReason::SxRpcDown.metric_label(), "sx_rpc_down");
+    assert_eq!(
+        AutoPauseReason::FillRatioLow { fill_ratio: 0.5, min: 0.6 }.metric_label(),
+        "fill_ratio_low"
+    );
+    assert_eq!(
+        AutoPauseReason::AcceptTimeHigh { p95_ms: 1_200, max_ms: 900 }.metric_label(),
+        "accept_time_high"
+    );
+}

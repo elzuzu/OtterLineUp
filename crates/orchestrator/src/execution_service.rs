@@ -35,6 +35,17 @@ pub enum AutoPauseReason {
     AcceptTimeHigh { p95_ms: u64, max_ms: u64 },
 }
 
+impl AutoPauseReason {
+    pub fn metric_label(&self) -> &'static str {
+        match self {
+            AutoPauseReason::SequencerDown => "sequencer_down",
+            AutoPauseReason::SxRpcDown => "sx_rpc_down",
+            AutoPauseReason::FillRatioLow { .. } => "fill_ratio_low",
+            AutoPauseReason::AcceptTimeHigh { .. } => "accept_time_high",
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct AutoPauseController {
     cfg: AutoPauseConfig,

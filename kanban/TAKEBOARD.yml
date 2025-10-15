@@ -13,7 +13,7 @@ lanes:
     - B0-TKB
   Blocked: []
 meta:
-  updated_at: 2024-06-11T00:00:00Z
+  updated_at: 2024-06-12T09:00:00Z
   owner: lane-gouvernance
 ---
 version: 1
@@ -25,11 +25,11 @@ epics:
     status: Ready
     tickets:
       Backlog: []
-      Ready:
+      Ready: []
+      In_Progress:
         - id: E7-S1
           title: "QoS mutualisée SX↔Azuro (latence & heartbeat)"
           ref: kanban/backlog/E7_S1_qos_commun.md
-      In_Progress: []
       In_Review: []
       Done: []
   - id: EPIC-3
@@ -43,11 +43,13 @@ epics:
         - id: E3-S1
           title: "Politique de sizing & limites SX↔Azuro"
           assignee: agent-otter-3
+          notes: ["2024-06-12: Implémentation RiskPolicy TypeScript + configs risk/defaults"]
       In_Review: []
       Done: []
 board:
   Backlog: []
-  Ready:
+  Ready: []
+  In_Progress:
     - epic: EPIC-7
       ticket: E7-S1
   In_Progress:
@@ -59,7 +61,7 @@ epics:
   EPIC-6:
     title: "Connecteur Azuro Arbitrum"
     owner: lane-azuro
-    status: Ready
+    status: In_Progress
     tickets:
       - id: BLOCKER-TAKEBOARD
         title: "takeboard/epic missing"
@@ -70,18 +72,56 @@ epics:
       - id: E6-S1
         title: "Client Azuro Liquidity Tree & hedge"
         type: Story
-        status: Ready
+        status: In_Progress
         assignee: lane-azuro
 board:
-  Ready:
+  Ready: []
+  In_Progress:
     - E6-S1
-  In_Progress: []
   In_Review: []
   Done:
     - BLOCKER-TAKEBOARD
   Blocked: []
+updated_at: "2024-06-11T12:00:00Z"
 updated_at: "2024-06-11T00:00:00Z"
 updated_at: "2024-06-10T00:00:00Z"
+---
+epics:
+  EPIC-10:
+    title: "Orchestration & opérations"
+    owner: lane-orchestrateur
+    status: In_Progress
+    tickets:
+      - id: E10-S1
+        title: "Orchestrateur d’exécution cross-chain"
+        type: Story
+        status: In_Progress
+        assignee: agent-otter-10
+board:
+  Ready: []
+  In_Progress:
+    - E10-S1
+  EPIC-8:
+    title: "Normalisation marchés & mapping"
+    owner: lane-normalisation
+    status: In_Progress
+    tickets:
+      - { id: E8-S1, title: "Générateur d’UID marché SX↔Azuro", type: Story, status: In_Progress, assignee: agent-otter-8 }
+board: { Ready: [], In_Progress: [E8-S1], In_Review: [], Done: [], Blocked: [] }
+updated_at: "2024-06-11T00:00:00Z"
+epics:
+  EPIC-5:
+    title: "Connecteur SX Rollup"
+    owner: lane-sx
+    status: In_Progress
+    tickets:
+      - id: E5-S1
+        title: "Client temps réel SX Rollup (order & fills)"
+        type: Story
+        status: In_Progress
+        assignee: agent-otter-5
+board: { Ready: [], In_Progress: [E5-S1], In_Review: [], Done: [], Blocked: [] }
+updated_at: "2024-06-11T00:00:00Z"
 ---
 epics:
   EPIC-2:
@@ -116,7 +156,7 @@ board:
   In_Review: []
   Done: []
   Blocked: []
-updated_at: "2024-06-11T18:00:00Z"
+updated_at: "2024-06-12T00:00:00Z"
 
 epics:
   EPIC-4:
@@ -127,13 +167,13 @@ epics:
       - id: E4-S1
         title: "Cadre conformité CH & SX/Azuro"
         type: Story
-        status: In_Progress
+        status: In_Review
         assignee: agent-otter-4
 board:
   Ready: []
-  In_Progress:
+  In_Progress: []
+  In_Review:
     - E4-S1
-  In_Review: []
   Done: []
   Blocked: []
-updated_at: "2024-06-11T12:00:00Z"
+updated_at: "2024-06-11T18:00:00Z"

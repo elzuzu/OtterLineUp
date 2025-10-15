@@ -1,0 +1,15 @@
+[package]
+name = "normalization"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "normalization"
+path = "src/lib.rs"
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+hex = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+sha2 = "0.10"
+thiserror = "1.0"

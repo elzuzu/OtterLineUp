@@ -14,19 +14,19 @@ deps:
   - E5-S1
   - E6-S1
 acceptance:
-  - Dashboard Prometheus/Grafana `dashboards/arb_qos.json` couvrant latence (dont `p95 accept-time`), fill-ratio ≥ 60 %, Δquote→fill, taux partial fills, void-rate et santé wallets.
-  - Alerting `ops/alerts/qos.yaml` avec seuil latence p95 > 350 ms, ratio erreurs > 2 %, trigger auto-pause si `fill_ratio < 60 %`, `p95 > 1 s`, ou détection sequencer Arbitrum / RPC SX Rollup down, et alerte solde `< 15 USD` par wallet.
-  - Binaire heartbeat Rust (`crates/monitoring/src/bin/heartbeat.rs`) consignant SX & Azuro toutes les 30 s dans `monitoring/heartbeat.log`, probant RPC SX Rollup + sequencer Arbitrum et exposant statut au service orchestrateur.
-  - Service watcher soldes (`crates/monitoring/src/bin/balance_watcher.rs`) sondant les deux wallets, loggant en UTC et interdisant tout bridge automatique (alerte seulement).
+  - Dashboard Prometheus/Grafana `dashboards/arb_qos.json` couvrant latence (dont `p95 accept-time`), fill-ratio, Δquote→fill, taux partial fills, void-rate, santé wallets et affichant les valeurs live issues de `RuntimeRegistry` (gas, sequencer, balances) + hash config courant.
+  - Alerting `ops/alerts/qos.yaml` avec seuils alignés sur `config/exec.yml` (`fill_ratio_min`, `p95_accept_time_ms_max`) et `config/risk.yml` (`stake_pct_cap` alerting), déclenchant auto-pause orchestrateur via API lorsque `fill_ratio < config` ou `p95 > config`, ou détection sequencer Arbitrum / RPC SX Rollup down, et alerte solde `< 15 USD` par wallet.
+  - Binaire heartbeat Rust (`crates/monitoring/src/bin/heartbeat.rs`) consignant SX & Azuro toutes les 30 s dans `monitoring/heartbeat.log`, probant RPC SX Rollup + sequencer Arbitrum, exposant statut au service orchestrateur et mettant à jour `RuntimeRegistry.sequencerHealth()`.
+  - Service watcher soldes (`crates/monitoring/src/bin/balance_watcher.rs`) sondant les deux wallets via `RuntimeRegistry.getBank()`, loggant en UTC, interdisant tout bridge automatique (alerte seulement) et publiant hash config utilisé.
 evidence:
   - Capture dashboard (PNG) avant/après injection charge.
   - Export alertes Prometheus (`/api/v1/rules`).
   - Log heartbeat stocké 24 h.
 tasks:
-  - Instrumenter clients (lanes E5/E6) avec métriques `Prometheus` via crate `metrics` + exporter HTTP (Δquote→fill, partial fills, void-rate, accept-time).
-  - Construire dashboard Grafana + alertes correspondantes, y compris panneaux solde wallets et corrélation auto-pause.
-  - Mettre en place heartbeat Rust (`crates/monitoring/src/bin/heartbeat.rs`) avec `tokio` + `reqwest` et timers basse latence, publication statut vers orchestrateur.
-  - Développer watcher soldes (`crates/monitoring/src/bin/balance_watcher.rs`) avec notifications `< 15 USD`, timestamps UTC et tests de non-bridge.
+  - Instrumenter clients (lanes E5/E6) avec métriques `Prometheus` via crate `metrics` + exporter HTTP (Δquote→fill, partial fills, void-rate, accept-time) et pipeline `RuntimeRegistry` (gas, sequencer, balances).
+  - Construire dashboard Grafana + alertes correspondantes synchronisées avec `ConfigManager` (hash, source CLI/ENV/fichiers) et panneaux solde wallets corrélant auto-pause.
+  - Mettre en place heartbeat Rust (`crates/monitoring/src/bin/heartbeat.rs`) avec `tokio` + `reqwest` et timers basse latence, publication statut vers orchestrateur + mise à jour `RuntimeRegistry`.
+  - Développer watcher soldes (`crates/monitoring/src/bin/balance_watcher.rs`) avec notifications `< 15 USD`, timestamps UTC, tests de non-bridge et validation schema `risk.yml` (`bank_source`).
 observability:
   - KPIs : latence p50/p95, taux erreurs, uptime heartbeat, occurrences alertes solde.
   - Logs : `heartbeat.log`, `balance_watcher.log`, événements alertmanager (UTC ISO8601).

@@ -15,18 +15,18 @@ deps:
   - E7-S1
   - E9-S3
 acceptance:
-  - Service Rust `crates/orchestrator/src/execution_service.rs` ordonnançant SX → Azuro avec TTL SX ≤ 800 ms et TTL Azuro ≤ 2,5 s, bouton pause/safe-stop drain propre, enforcement flag `REAL_MONEY=true` avant lancement et enchaînement hedge alt-line/total si jambe B échoue.
-  - Gestion transactions idempotentes (clé `(marketUid, side, tsBucket, nonce)`), reprise sur incident (checkpoint) et persistance `orchestrator/state_store` (SQLite/SeaORM) incluant auto-pause si `fill_ratio < 60 %` (fenêtre 20 trades), `p95 accept-time > 1 s`, ou détection sequencer Arbitrum / RPC SX Rollup down issue des probes lane observabilité.
-  - Gestion des retours d’erreur normalisée (`E-SX-PARTIAL-TIMEOUT`, `E-AZU-ΔODD-THRESH`, etc.) sans panics muets et timestamps logs au format UTC ISO8601.
-  - Runbook `runbooks/orchestrator_failover.md` couvrant partial fills, timeouts, auto-cancel heartbeat, déclenchement auto-pause (fill ratio, latence, sequencer/RPC) et reprise mode dégradé.
+  - Service Rust `crates/orchestrator/src/execution_service.rs` ordonnançant SX → Azuro avec TTL/ordre/partial fills issus de `config/exec.yml` (hot-reload via `ConfigManager`, priorité CLI > ENV > fichiers > defaults), bouton pause/safe-stop drain propre, enforcement flag `REAL_MONEY=true` et enchaînement hedge alt-line/total si jambe B échoue.
+  - Gestion transactions idempotentes (clé `(marketUid, side, tsBucket, nonce)`), reprise sur incident (checkpoint) et persistance `orchestrator/state_store` (SQLite/SeaORM) incluant auto-pause pilotée par `config/exec.yml` (`fill_ratio_min`, `p95_accept_time_ms_max`, fenêtres) et sondes runtime (`RuntimeRegistry.sequencerHealth()`, latence RPC SX) avec réaction < 5 s.
+  - Gestion des retours d’erreur normalisée (`E-SX-PARTIAL-TIMEOUT`, `E-AZU-ΔODD-THRESH`, `E-RUNTIME-SEQUENCER`, etc.) sans panics muets, timestamps logs au format UTC ISO8601 et journalisation hash config actif.
+  - Runbook `runbooks/orchestrator_failover.md` couvrant partial fills, timeouts, auto-cancel heartbeat, déclenchement auto-pause (fill ratio, latence, sequencer/RPC) et reprise mode dégradé, incluant procédure reload config live & dry-run interne avant bascule.
 evidence:
-  - Logs orchestrateur `evidence/orchestrator_run.log` (traces `tracing` JSON) pour 30 scénarios ghost.
-  - Tests E2E Rust `crates/orchestrator/tests/execution_service.rs` réussis (`cargo test`).
-  - Review runbook approuvée (screenshot/commentaire).
+  - Logs orchestrateur `evidence/orchestrator_run.log` (traces `tracing` JSON) pour 30 scénarios ghost montrant reload `exec.yml`, déclenchement auto-pause < 5 s et hash config.
+  - Tests E2E Rust `crates/orchestrator/tests/execution_service.rs` réussis (`cargo test`) incluant scénarios de reload config + bascule TTL sans rebuild.
+  - Review runbook approuvée (screenshot/commentaire) intégrant captures `ConfigManager`/`RuntimeRegistry`.
 tasks:
-  - Implémenter orchestrateur Rust (state machine, orchestrated steps, retries) avec `tokio`, `async-trait`, enforcement clé idempotente et horodatage UTC.
-  - Intégrer clients SX/Azuro + moteur arbitrage via bus d’événements (`nats`/`redis`) avec backpressure, mapping erreurs vers codes standards et hooks auto-pause (fill ratio, latence, sequencer/RPC down).
-  - Rédiger runbook failover et exercices tabletop incluant procédure `REAL_MONEY` gate, reprise auto-pause et tests de déclenchement.
+  - Implémenter orchestrateur Rust (state machine, orchestrated steps, retries) avec `tokio`, `async-trait`, enforcement clé idempotente, horodatage UTC et souscription aux notifications `ConfigManager`/`RuntimeRegistry` (reload à chaud, TTL).
+  - Intégrer clients SX/Azuro + moteur arbitrage via bus d’événements (`nats`/`redis`) avec backpressure, mapping erreurs vers codes standards et hooks auto-pause (fill ratio, latence, sequencer/RPC down) alimentés par `RuntimeRegistry`.
+  - Rédiger runbook failover et exercices tabletop incluant procédure `REAL_MONEY` gate, reprise auto-pause, tests de déclenchement (< 5 s) et checklist reload config/dry-run.
 observability:
   - KPIs : temps orchestration, taux rollback, incidents par type, déclenchements auto-pause par cause.
   - Logs : `execution_service.log`, événements checkpoint avec timestamps UTC et codes erreur.

@@ -33,6 +33,7 @@ export type RuntimeTtls = {
   sequencerMs: number;
 };
 
+export type RuntimeRegistryOptions = { ttl: RuntimeTtls; fetchers: RuntimeFetchers; clock?: () => number };
 export type RuntimeRegistryOptions = {
   ttl: RuntimeTtls;
   fetchers: RuntimeFetchers;
@@ -144,6 +145,11 @@ export class RuntimeRegistry {
     this.gasSlots.clear();
   }
 
+  private resolve<T>(slot: CacheSlot<T>, ttlMs: number, loader: () => Promise<T>, label: string): Promise<T> {
+    const entry = slot.entry;
+    const now = this.now();
+    if (entry && entry.expiresAt > now) return Promise.resolve(entry.value);
+    if (slot.pending) return slot.pending;
   private resolve<T>(
     slot: CacheSlot<T>,
     ttlMs: number,

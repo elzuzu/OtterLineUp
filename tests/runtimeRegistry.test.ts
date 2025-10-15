@@ -319,6 +319,7 @@ await registry.sequencerHealth();
 await registry.sequencerHealth();
 assert.equal(sequencerCalls, 1);
 
+await Promise.all([registry.getSxMetadata(), registry.getAzuroLimits(), registry.sequencerHealth()]);
 const anotherMetadataCall = registry.getSxMetadata();
 const anotherAzuroCall = registry.getAzuroLimits();
 const anotherSeqCall = registry.sequencerHealth();

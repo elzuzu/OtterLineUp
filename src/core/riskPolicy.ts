@@ -6,6 +6,7 @@ export type StopLossRule = { type: 'absolute' | 'percent'; value: number };
 export type OddsSlippagePolicy = { default: number; perMarket: Record<string, number>; deltaOddReject: number };
 export type RiskSnapshot = { hash: string; version?: string; bankSource: { chain: string; token: string; account: string }; sizing: StakeParameters; limits: { maxConcurrentTrades: number; stopLoss: StopLossRule; alertBalanceUsd: number }; thresholds: { mNetPct: number }; markets: { excludedLeagues: string[]; excludedMarkets: string[]; oddsSlippage: OddsSlippagePolicy } };
 export type StakeDecision = { stake: number; applied: StakeParameters; snapshotHash: string };
+export type StopLossEvaluation = { limitUsd: number; remainingUsd: number; triggered: boolean };
 
 const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value));
 const num = (value: unknown, path: string): number => { if (typeof value !== 'number' || Number.isNaN(value)) throw new Error(`RiskPolicy: expected number at ${path}`); return value; };
@@ -85,4 +86,37 @@ export class RiskPolicy {
   }
 
   getDeltaOddReject(): number { return this.current.markets.oddsSlippage.deltaOddReject; }
+
+  getMNetThreshold(): number { return this.current.thresholds.mNetPct; }
+
+  getMaxConcurrentTrades(): number { return this.current.limits.maxConcurrentTrades; }
+
+  getAlertBalanceUsd(): number { return this.current.limits.alertBalanceUsd; }
+
+  shouldAlertBalance(bankUsd: number): boolean {
+    if (!Number.isFinite(bankUsd) || bankUsd < 0) throw new Error('RiskPolicy: invalid bank value');
+    return bankUsd <= this.current.limits.alertBalanceUsd;
+  }
+
+  evaluateStopLoss(realizedLossUsd: number, bankUsd: number): StopLossEvaluation {
+    if (!Number.isFinite(realizedLossUsd) || realizedLossUsd < 0)
+      throw new Error('RiskPolicy: invalid realized loss');
+    if (!Number.isFinite(bankUsd) || bankUsd < 0) throw new Error('RiskPolicy: invalid bank value');
+    const { stopLoss } = this.current.limits;
+    const limit = stopLoss.type === 'absolute' ? stopLoss.value : (bankUsd * stopLoss.value) / 100;
+    const remaining = Math.max(0, limit - realizedLossUsd);
+    return { limitUsd: limit, remainingUsd: remaining, triggered: remaining <= 0 };
+  }
+
+  isLeagueAllowed(league: string | null | undefined): boolean {
+    if (!league) return true;
+    return !this.current.markets.excludedLeagues.includes(league);
+  }
+
+  isMarketAllowed(market: string | null | undefined): boolean {
+    if (!market) return true;
+    return !this.current.markets.excludedMarkets.includes(market);
+  }
+
+  getBankSource(): RiskSnapshot['bankSource'] { return this.current.bankSource; }
 }

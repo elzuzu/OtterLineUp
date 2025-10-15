@@ -308,16 +308,23 @@ epics:
         assignee: agent-otter-5
         notes:
           - "2024-07-06: RwLock-based cache refresh ensuring TTL respect"
-    board: { Ready: [], In_Progress: [E5-S1], In_Review: [E5-S1-T1, E5-S1-T4, E5-S1-T5, E5-S1-T6], Done: [], Blocked: [] }
-    updated_at: "2024-07-06T18:00:00Z"
+      - id: E5-S1-T7
+        title: "SxClient support odds ladder arrays (TS)"
+        type: Task
+        status: In_Progress
+        assignee: agent-otter-5
+        notes:
+          - "2024-07-06: Align TS client to ladder arrays from RuntimeRegistry"
+    board: { Ready: [], In_Progress: [E5-S1, E5-S1-T7], In_Review: [E5-S1-T1, E5-S1-T4, E5-S1-T5, E5-S1-T6], Done: [], Blocked: [] }
+    updated_at: "2024-07-06T20:00:00Z"
         title: "RuntimeRegistry resolve TTL guards (SX feed)"
         type: Task
         status: In_Progress
         assignee: agent-otter-5
         notes:
           - "2024-07-06: Nettoyage resolve() + horloge injectée"
-    board: { Ready: [], In_Progress: [E5-S1, E5-S1-T6], In_Review: [E5-S1-T1, E5-S1-T4, E5-S1-T5], Done: [], Blocked: [] }
-    updated_at: "2024-07-06T13:00:00Z"
+    board: { Ready: [], In_Progress: [E5-S1, E5-S1-T6, E5-S1-T7], In_Review: [E5-S1-T1, E5-S1-T4, E5-S1-T5], Done: [], Blocked: [] }
+    updated_at: "2024-07-06T20:00:00Z"
 ---
 epics:
   EPIC-2:

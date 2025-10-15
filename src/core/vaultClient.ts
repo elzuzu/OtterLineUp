@@ -21,6 +21,7 @@ export class VaultError extends Error {
 
 interface LoginPayload { auth?: { client_token?: string; lease_duration?: number }; errors?: string[]; }
 interface SecretPayload<T> { data?: { data?: T; metadata?: Record<string, unknown> }; errors?: string[]; }
+interface SecretMetadataPayload<T> { data?: T; errors?: string[]; }
 
 export class VaultClient {
   private token: string | null = null;
@@ -45,6 +46,24 @@ export class VaultClient {
     const secret = payload.data;
     if (!secret?.data) throw new VaultError('Vault secret missing data');
     return { data: secret.data, metadata: secret.metadata ?? {} };
+  }
+
+  async writeSecret<T = Record<string, unknown>>(path: string, data: T): Promise<void> {
+    if (!path) throw new Error('VaultClient.writeSecret requires path');
+    if (data === null || typeof data !== 'object') {
+      throw new Error('VaultClient.writeSecret requires data object');
+    }
+    await this.ensureToken();
+    await this.rawRequest('POST', path, { data });
+  }
+
+  async getSecretMetadata<T = Record<string, unknown>>(path: string): Promise<T> {
+    if (!path) throw new Error('VaultClient.getSecretMetadata requires path');
+    const metadataPath = this.toMetadataPath(path);
+    await this.ensureToken();
+    const payload = await this.rawRequest<SecretMetadataPayload<T>>('GET', metadataPath);
+    if (!payload.data) throw new VaultError('Vault secret metadata missing data');
+    return payload.data;
   }
 
   async revoke(): Promise<void> {
@@ -95,6 +114,13 @@ export class VaultClient {
   private clearToken(): void {
     this.token = null;
     this.tokenExpiresAt = 0;
+  }
+
+  private toMetadataPath(path: string): string {
+    const normalized = path.replace(/^\/+/, '');
+    if (normalized.includes('/metadata/')) return normalized;
+    if (normalized.includes('/data/')) return normalized.replace('/data/', '/metadata/');
+    throw new Error('VaultClient.getSecretMetadata requires KV v2 data or metadata path');
   }
 
   private async rawRequest<T>(

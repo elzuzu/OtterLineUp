@@ -13,6 +13,7 @@ export class SxClientError extends Error {
 
 export class SxClient {
   private readonly clock: () => number;
+  private cachedMetadata?: SxClientMetadata;
   constructor(private readonly options: SxClientOptions) { this.clock = options.clock ?? (() => Date.now()); }
 
   async getBestQuote(request: QuoteRequest): Promise<Quote> {
@@ -52,15 +53,25 @@ export class SxClient {
   }
 
   private async loadMetadata(): Promise<SxClientMetadata> {
+    const cached = this.cachedMetadata;
+    if (cached && this.isMetadataFresh(cached)) {
+      return cached;
+    }
     const metadata = await this.options.metadata.latest();
-    const age = this.clock() - metadata.fetchedAtMs;
-    if (age > this.options.metadataTtlMs) {
-      throw new SxClientError('E-SX-METADATA-STALE', 'metadata snapshot is stale', { ageMs: age });
+    if (!this.isMetadataFresh(metadata)) {
+      const ageMs = this.clock() - metadata.fetchedAtMs;
+      throw new SxClientError('E-SX-METADATA-STALE', 'metadata snapshot is stale', { ageMs });
     }
     if (!(metadata.oddsLadderStep > 0)) {
       throw new SxClientError('E-SX-METADATA-INVALID', 'invalid odds ladder step', { oddsLadderStep: metadata.oddsLadderStep });
     }
+    this.cachedMetadata = metadata;
     return metadata;
+  }
+
+  private isMetadataFresh(metadata: SxClientMetadata): boolean {
+    const age = this.clock() - metadata.fetchedAtMs;
+    return age <= this.options.metadataTtlMs;
   }
 
   private async withTimeout<T>(ms: number, task: () => Promise<T>): Promise<T> {

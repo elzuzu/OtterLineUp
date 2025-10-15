@@ -1,7 +1,14 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { canonicalFingerprint, marketUidFromIdentifier, MarketUidError, type MarketIdentifier } from '../src/index.js';
+import {
+  canonicalFingerprint,
+  marketUidFromIdentifier,
+  isMarketUid,
+  assertMarketUid,
+  MarketUidError,
+  type MarketIdentifier,
+} from '../src/index.js';
 
 const baseIdentifier: MarketIdentifier = {
   operator: 'sx',
@@ -17,6 +24,7 @@ const baseIdentifier: MarketIdentifier = {
 
 assert.equal(canonicalFingerprint(baseIdentifier), 'muid|v1|sx|soccer|premier_league|arsenal_vs_chelsea|moneyline|pre|na|20240810T1630Z|home');
 assert.equal(marketUidFromIdentifier(baseIdentifier), 'muid-v1-b05bf41737061f9a2d1595d7');
+assert.ok(isMarketUid('muid-v1-b05bf41737061f9a2d1595d7'));
 
 const accentedIdentifier: MarketIdentifier = {
   operator: 'SX',
@@ -30,11 +38,28 @@ const accentedIdentifier: MarketIdentifier = {
 
 assert.equal(canonicalFingerprint(accentedIdentifier), 'muid|v1|sx|futbol|brasileirao_serie_a|sao_paulo_fc_vs_gremio|moneyline|na|na|20240315T1530Z|home');
 
+assert.ok(!isMarketUid('muid-v1-invalid-hash'));
+assert.throws(() => assertMarketUid('invalid'), (error: unknown) => {
+  assert.ok(error instanceof MarketUidError);
+  assert.equal(error.field, 'marketUid');
+  assert.equal(error.message, 'invalid market UID format');
+  return true;
+});
+
 assert.throws(() => canonicalFingerprint({ ...baseIdentifier, event: '   ' }), (error: unknown) => {
   assert.ok(error instanceof MarketUidError);
   assert.equal(error.field, 'event');
   return true;
 });
+
+assert.throws(
+  () => marketUidFromIdentifier({ ...baseIdentifier, eventTimestamp: new Date('invalid-date') }),
+  (error: unknown) => {
+    assert.ok(error instanceof MarketUidError);
+    assert.equal(error.field, 'eventTimestamp');
+    return true;
+  },
+);
 
 const [header, ...rows] = readFileSync('data/market_uid_seed.csv', 'utf8').trim().split('\n');
 assert.equal(header, 'operator,sport,league,event,market_type,outcome,variant,ladder,event_timestamp,market_uid');

@@ -342,11 +342,19 @@ epics:
         assignee: agent-otter-4
         notes:
           - "2024-07-05: assertRealMoneyEnabled dans complianceGuards + tests"
+      - id: E4-S5
+        title: "Seuils auto-pause dérivés de exec config"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-4
+        notes:
+          - "2024-07-05: deriveComplianceThresholds mappe config.exec vers ComplianceThresholds"
     board:
       Ready: []
       In_Progress: []
       In_Review:
         - E4-S4
+        - E4-S5
       Done:
         - E4-S1
         - E4-S2

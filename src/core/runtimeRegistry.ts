@@ -57,8 +57,11 @@ export class RuntimeRegistry {
   private readonly bankSlot = createSlot<BankSnapshot>();
 
   private readonly gasSlots = new Map<string, CacheSlot<GasSnapshot>>();
+
   private readonly sxSlot = createSlot<SxMetadataSnapshot>();
+
   private readonly azuroSlot = createSlot<AzuroLimitsSnapshot>();
+
   private readonly seqSlot = createSlot<SequencerStatus>();
   private readonly now: () => number;
 
@@ -68,7 +71,6 @@ export class RuntimeRegistry {
       if (!Number.isFinite(ttl) || ttl <= 0) {
         throw new Error(`RuntimeRegistry: ttl.${key} must be > 0`);
       }
-      if (!Number.isFinite(ttl) || ttl <= 0) throw new Error(`RuntimeRegistry: ttl.${key} must be > 0`);
     }
   }
 
@@ -150,11 +152,20 @@ export class RuntimeRegistry {
     this.gasSlots.clear();
   }
 
+  private resolve<T>(
+    slot: CacheSlot<T>,
+    ttlMs: number,
+    loader: () => Promise<T>,
+  ): Promise<T> {
   private resolve<T>(slot: CacheSlot<T>, ttlMs: number, loader: () => Promise<T>, label: string): Promise<T> {
     const entry = slot.entry;
     const now = Date.now();
-    if (entry && entry.expiresAt > now) return Promise.resolve(entry.value);
-    if (slot.pending) return slot.pending;
+    if (entry && entry.expiresAt > now) {
+      return Promise.resolve(entry.value);
+    }
+    if (slot.pending) {
+      return slot.pending;
+    }
     const pending = loader()
       .then((value) => {
         slot.entry = { value, expiresAt: computeExpiry(value, ttlMs, label) };

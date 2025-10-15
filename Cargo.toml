@@ -6,4 +6,15 @@ members = [
     "crates/azuro_client",
     "crates/execution",
 ]
+members = ["crates/execution", "crates/tools"]
+members = ["crates/execution", "crates/azuro_client"]
+members = [
+    "crates/orchestrator",
+]
+
+members = ["crates/normalization"]
+members = ["crates/monitoring"]
+members = ["crates/sx_client"]
+members = ["crates/azuro_client"]
+members = ["crates/execution"]
 resolver = "2"

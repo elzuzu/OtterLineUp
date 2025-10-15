@@ -13,7 +13,7 @@ lanes:
     - B0-TKB
   Blocked: []
 meta:
-  updated_at: 2024-06-12T00:00:00Z
+  updated_at: 2024-06-30T00:00:00Z
   owner: lane-gouvernance
 ---
 version: 1
@@ -43,6 +43,7 @@ epics:
         - id: E3-S1
           title: "Politique de sizing & limites SX↔Azuro"
           assignee: agent-otter-3
+          notes: ["2024-06-12: Implémentation RiskPolicy TypeScript + configs risk/defaults"]
       In_Review: []
       Done: []
 board:
@@ -60,7 +61,7 @@ epics:
   EPIC-6:
     title: "Connecteur Azuro Arbitrum"
     owner: lane-azuro
-    status: Ready
+    status: In_Progress
     tickets:
       - id: BLOCKER-TAKEBOARD
         title: "takeboard/epic missing"
@@ -71,7 +72,7 @@ epics:
       - id: E6-S1
         title: "Client Azuro Liquidity Tree & hedge"
         type: Story
-        status: Ready
+        status: In_Progress
         assignee: lane-azuro
 board:
   Ready: []
@@ -81,10 +82,25 @@ board:
   Done:
     - BLOCKER-TAKEBOARD
   Blocked: []
+updated_at: "2024-06-11T12:00:00Z"
 updated_at: "2024-06-11T00:00:00Z"
 updated_at: "2024-06-10T00:00:00Z"
 ---
 epics:
+  EPIC-10:
+    title: "Orchestration & opérations"
+    owner: lane-orchestrateur
+    status: In_Progress
+    tickets:
+      - id: E10-S1
+        title: "Orchestrateur d’exécution cross-chain"
+        type: Story
+        status: In_Progress
+        assignee: agent-otter-10
+board:
+  Ready: []
+  In_Progress:
+    - E10-S1
   EPIC-8:
     title: "Normalisation marchés & mapping"
     owner: lane-normalisation
@@ -104,8 +120,8 @@ epics:
         type: Story
         status: In_Progress
         assignee: agent-otter-5
-board: { Ready: [], In_Progress: [E5-S1], In_Review: [], Done: [], Blocked: [] }
-updated_at: "2024-06-11T00:00:00Z"
+    board: { Ready: [], In_Progress: [E5-S1], In_Review: [], Done: [], Blocked: [] }
+    updated_at: "2024-06-12T12:00:00Z"
 ---
 epics:
   EPIC-2:
@@ -118,6 +134,7 @@ epics:
         type: Story
         status: In_Progress
         assignee: agent-otter-2
+        notes: "Vault policies extended, CI smoke wired"
 board:
   Ready: []
   In_Progress:
@@ -139,7 +156,7 @@ board:
   In_Review: []
   Done: []
   Blocked: []
-updated_at: "2024-06-11T00:00:00Z"
+updated_at: "2024-06-12T00:00:00Z"
 
 epics:
   EPIC-4:
@@ -150,13 +167,13 @@ epics:
       - id: E4-S1
         title: "Cadre conformité CH & SX/Azuro"
         type: Story
-        status: In_Progress
+        status: In_Review
         assignee: agent-otter-4
 board:
   Ready: []
-  In_Progress:
+  In_Progress: []
+  In_Review:
     - E4-S1
-  In_Review: []
   Done: []
   Blocked: []
-updated_at: "2024-06-11T12:00:00Z"
+updated_at: "2024-06-11T18:00:00Z"

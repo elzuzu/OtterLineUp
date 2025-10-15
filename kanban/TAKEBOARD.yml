@@ -180,6 +180,13 @@ epics:
         assignee: agent-otter-10
         notes:
           - "2024-07-05: Tracker déduplication des raisons auto-pause + reset recovery"
+      - id: E10-S1-T3
+        title: "ExecutionService auto-pause gating"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-10
+        notes:
+          - "2024-07-06: ExecutionService status/resume resets tracker"
     board:
       Ready: []
       In_Progress:
@@ -187,6 +194,7 @@ epics:
       In_Review:
         - E10-S1-T1
         - E10-S1-T2
+        - E10-S1-T3
   EPIC-8:
     title: "Normalisation marchés & mapping"
     owner: lane-normalisation

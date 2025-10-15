@@ -122,7 +122,8 @@ impl AutoPauseController {
         runtime: RuntimeHealth,
         evaluated_at: SystemTime,
     ) -> Option<AutoPauseDecision> {
-        self.evaluate_reason(metrics, runtime)
+        self
+            .evaluate_reason(metrics, runtime)
             .map(|reason| AutoPauseDecision { reason, evaluated_at })
     }
 }
@@ -178,5 +179,73 @@ impl AutoPauseTracker {
                 None
             }
         }
+    }
+
+    pub fn reset(&mut self) {
+        self.last_decision = None;
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct ExecutionStatus {
+    paused: bool,
+    last_decision: Option<AutoPauseDecision>,
+}
+
+impl ExecutionStatus {
+    pub fn is_paused(&self) -> bool {
+        self.paused
+    }
+
+    pub fn last_decision(&self) -> Option<&AutoPauseDecision> {
+        self.last_decision.as_ref()
+    }
+}
+
+#[derive(Debug)]
+pub struct ExecutionService {
+    tracker: AutoPauseTracker,
+    status: ExecutionStatus,
+}
+
+impl ExecutionService {
+    pub fn new(tracker: AutoPauseTracker) -> Self {
+        Self {
+            tracker,
+            status: ExecutionStatus::default(),
+        }
+    }
+
+    pub fn from_exec_config(exec: &ExecConfig) -> Self {
+        Self::new(AutoPauseTracker::from_exec_config(exec))
+    }
+
+    pub fn status(&self) -> &ExecutionStatus {
+        &self.status
+    }
+
+    pub fn update_from_exec(&mut self, exec: &ExecConfig) {
+        self.tracker.update_from_exec(exec);
+    }
+
+    pub fn observe_metrics(
+        &mut self,
+        metrics: MetricsWindow,
+        runtime: RuntimeHealth,
+        evaluated_at: SystemTime,
+    ) -> Option<AutoPauseDecision> {
+        if let Some(decision) = self.tracker.evaluate(metrics, runtime, evaluated_at) {
+            self.status.paused = true;
+            self.status.last_decision = Some(decision.clone());
+            Some(decision)
+        } else {
+            None
+        }
+    }
+
+    pub fn resume(&mut self) {
+        self.status.paused = false;
+        self.status.last_decision = None;
+        self.tracker.reset();
     }
 }

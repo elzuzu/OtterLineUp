@@ -1,3 +1,4 @@
 [workspace]
 members = ["crates/azuro_client"]
+members = ["crates/execution"]
 resolver = "2"

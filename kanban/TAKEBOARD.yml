@@ -13,7 +13,7 @@ lanes:
     - B0-TKB
   Blocked: []
 meta:
-  updated_at: 2024-06-12T00:00:00Z
+  updated_at: 2024-06-12T09:00:00Z
   owner: lane-gouvernance
 ---
 version: 1
@@ -43,6 +43,7 @@ epics:
         - id: E3-S1
           title: "Politique de sizing & limites SX↔Azuro"
           assignee: agent-otter-3
+          notes: ["2024-06-12: Implémentation RiskPolicy TypeScript + configs risk/defaults"]
       In_Review: []
       Done: []
 board:

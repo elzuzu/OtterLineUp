@@ -17,7 +17,7 @@
 - [ ] Transactions envoyées via relais privé si disponible (preuve screenshot / hash).
 
 ## Post-trade & Reporting
-- [ ] `ops/metrics.ts` expose p95_accept_time, fill_ratio, Δquote→fill, void_rate, m_net_avg.
+- [ ] `src/ops/metrics.ts` expose p95_accept_time, fill_ratio, Δquote→fill, void_rate, m_net_avg.
 - [ ] `ops/pnl.ts` mis à jour (SQLite + export CSV) après chaque batch.
 - [ ] Runbook `runbooks/void_escalation.md` suivi lors d'incident (evidence jointe).
 - [ ] Registre compliance `docs/compliance/register.md` mis à jour (versionning S3).

@@ -127,6 +127,7 @@ assert.equal(sxCalls, 1);
 assert.equal(azuroCalls, 1);
 assert.equal(sequencerCalls, 1);
 
+await assert.rejects(() => registry.getGas(''));
 const staleRegistry = new RuntimeRegistry({
   ttl: opts.ttl,
   fetchers: {

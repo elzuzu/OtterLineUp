@@ -36,13 +36,13 @@ epics:
           status: In_Progress
           assignee: agent-otter-7
           notes: "Implémentation binaire balance_watcher (poll RuntimeRegistry, alertes < seuil)."
+      In_Review:
         - id: E7-S1a-T1
           title: "RuntimeRegistry cache banque & métadonnées"
           type: Task
-          status: In_Progress
+          status: In_Review
           assignee: agent-otter-7
           notes: "Cache TTL court pour banques, gas, metadata SX/Azuro, sequencer."
-      In_Review:
         - id: E7-S1b
           title: "Déduplication exports risk policy"
           type: Task

@@ -30,13 +30,13 @@ epics:
         - id: E7-S1
           title: "QoS mutualisée SX↔Azuro (latence & heartbeat)"
           ref: kanban/backlog/E7_S1_qos_commun.md
+      In_Review:
         - id: E7-S1a
           title: "Watcher soldes runtime (alerte seuil)"
           type: Task
-          status: In_Progress
+          status: In_Review
           assignee: agent-otter-7
           notes: "Implémentation binaire balance_watcher (poll RuntimeRegistry, alertes < seuil)."
-      In_Review:
         - id: E7-S1b
           title: "Déduplication exports risk policy"
           type: Task

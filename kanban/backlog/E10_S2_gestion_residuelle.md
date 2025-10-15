@@ -13,9 +13,9 @@ deps:
   - E10-S1
   - E6-S1
 acceptance:
-  - Module Rust `crates/orchestrator/src/residual_handler.rs` gérant hedges partiels, buyback ou annulation selon ruleset risk.
-  - Stratégies documentées (`docs/risk/residual_playbook.md`) avec seuils (temps, taille résiduelle, coût hedge).
-  - Tests E2E Rust `crates/orchestrator/tests/residual_handler.rs` couvrant 10 scénarios (partial fill, suspension, latency spike).
+  - Module Rust `crates/orchestrator/src/residual_handler.rs` gérant hedges partiels, buyback ou annulation selon ruleset risk et enregistrant chaque issue dans un ledger PnL SQLite (`db/pnl.db`).
+  - Stratégies documentées (`docs/risk/residual_playbook.md`) avec seuils (temps, taille résiduelle, coût hedge) et export CSV quotidien (`analytics/pnl_ledger.csv`).
+  - Tests E2E Rust (`crates/orchestrator/tests/residual_handler.rs`) couvrant 10 scénarios (partial fill, suspension, latency spike) validant mise à jour ledger & export.
 evidence:
   - Logs scenario `evidence/residual_cases.log` (traces `tracing`).
   - Playbook validé par lane risk & compliance.

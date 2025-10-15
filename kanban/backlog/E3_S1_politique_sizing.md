@@ -12,9 +12,9 @@ labels:
 deps:
   - E1-S1
 acceptance:
-  - Modèle de sizing (flat / Kelly fractionné ≤ 0,25) publié avec scénarios bankroll 200 USD.
-  - Limites par ligue/marché/mise définies et automatisables via config `risk/sizing.yaml`.
-  - Seuil m_net ≥ 1,5 % confirmé après coûts (frais SX, Azuro, gaz) avec table calcul.
+  - Modèle de sizing bankroll 200 USD fixant 5–15 USD par jambe, max 10 % de la banque par trade et stop-day −10 USD, publié avec scénarios comparés (flat vs Kelly ≤ 0,25).
+  - Limites par ligue/marché/mise définies et automatisables via config `risk/sizing.yaml`, incluant contrôles partial fills SX et rejet marchés in-play.
+  - Seuil m_net ≥ 1,5 % confirmé après coûts (frais SX, Azuro, gaz, slippage) avec table calcul et estimateur ±5 % documenté.
 evidence:
   - Fichier `risk/sizing.yaml` versionné.
   - Notebook ou table `analytics/sizing_scenarios.xlsx` contenant simulations.

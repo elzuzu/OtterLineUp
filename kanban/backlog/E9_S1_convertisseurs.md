@@ -15,8 +15,8 @@ deps:
   - E8-S1
 acceptance:
   - Crate Rust `crates/execution/src/odds_converter.rs` supportant décimal ↔ américain ↔ probabilités, removal commission SX/Azuro.
-  - Calcul du m_net intégré (`crates/execution/src/net_margin.rs`) tenant compte slippage simulé, frais, arrondis.
-  - Tests unitaires & property-based (`proptest`) > 90 % coverage.
+  - Calcul du m_net intégré (`crates/execution/src/net_margin.rs`) tenant compte slippage simulé, frais, arrondis et estimateur gas/frais ±5 %.
+  - Tests unitaires & property-based (`proptest`) > 90 % coverage et validation formule `m_net = 1 - 1/o_SX - 1/o_Azuro - frais - gas - slip`.
 evidence:
   - Rapport `cargo test` + `cargo tarpaulin` pour crate execution.
   - Notebook validation `analytics/odds_validation.ipynb` avec cas réels.

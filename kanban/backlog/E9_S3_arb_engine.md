@@ -16,9 +16,9 @@ deps:
   - E9-S1
   - E9-S2
 acceptance:
-  - Moteur Rust `crates/execution/src/arb_engine.rs` détectant surebets (2-issues, 1X2) en < 200 ms (bench `cargo criterion`) avec pipeline m_net ≥ 1,5 %.
-  - Gestion file d’attente, priorisation, anti-duplication, timeouts (≥ 500 ms) avec rollback jambe B si jambe A échoue.
-  - Tests E2E Rust `crates/execution/tests/arb_engine_e2e.rs` (mode ghost) validant 50 scénarios, logs immuables (`tracing` JSON).
+  - Moteur Rust `crates/execution/src/arb_engine.rs` calculant `m_net = 1 - 1/o_SX - 1/o_Azuro - frais - gas - slip` et déclenchant uniquement si `m_net ≥ 1,5 %` et sizing conforme (5–15 USD jambe, ≤ 10 % bankroll 200 USD).
+  - Gestion file d’attente priorisant `m_net/latence`, anti-duplication, timeouts (≥ 500 ms) et rollback jambe B si jambe A échoue, avec hedge alt-line/total configuré.
+  - Tests E2E Rust (`crates/execution/tests/arb_engine_e2e.rs`) couvrant 50 scénarios (partial fills, hedge, rollback) et journalisant `Δquote→fill`, `fill_ratio`, `m_net`.
 evidence:
   - Rapport E2E ghost-run `evidence/arb_engine_ghost.json`.
   - Profilage latence (`analytics/arb_latency.csv`) issu de `cargo criterion`.

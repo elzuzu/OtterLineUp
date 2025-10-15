@@ -11,9 +11,9 @@ labels:
   - cross-chain
 deps: []
 acceptance:
-  - Inventaire `env/prod.env.yaml` complété avec RPC/WS SX Rollup et Arbitrum One (Azuro) et leurs latences cibles ≤ 250 ms.
-  - Périmètre marchés autorisés (1X2, handicaps, totaux) documenté avec fenêtres horaires et seuil m_net ≥ 1,5 %.
-  - Comptes SX & Azuro préfinancés ≥ 3 × mise max jambe et health-check Rust (`cargo run --bin healthcheck`) HTTP 200 / WS open archivé.
+  - Inventaire `env/prod.env.yaml` complété avec RPC/WS SX Rollup et Arbitrum One (Azuro), deux wallets séparés et latences cibles ≤ 250 ms sans bridge inter-chaîne pendant l’exécution.
+  - Périmètre marchés autorisés pré-match uniquement (1X2, handicaps, totaux) listé dans `docs/perimetre_markets.md` avec ligues en liste blanche et rappel m_net ≥ 1,5 %.
+  - Comptes SX & Azuro préfinancés ≥ 3 × mise max jambe, health-check Rust (`cargo run --bin healthcheck`) HTTP 200 / WS open archivé, et flag `REAL_MONEY=true` documenté.
 evidence:
   - Fichier `env/prod.env.yaml` validé en MR signé par produit + tech.
   - Export du binaire Rust `crates/tools/src/bin/healthcheck.rs` (`cargo run --bin healthcheck`) montrant endpoints OK et latences.

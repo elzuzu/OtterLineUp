@@ -12,8 +12,8 @@ labels:
 deps:
   - E1-S1
 acceptance:
-  - Schéma d’UID (`docs/mapping/market_uid.md`) combinant opérateur, ligue, type marché, timestamp, outcome.
-  - Crate Rust `crates/normalization/src/market_uid.rs` générant UID déterministe avec tests de collision.
+  - Schéma d’UID (`docs/mapping/market_uid.md`) combinant opérateur, ligue, type marché, timestamp, outcome et définissant MarketUID canonique (hash métadonnées normalisées).
+  - Crate Rust `crates/normalization/src/market_uid.rs` générant UID déterministe avec tests de collision et vérification hash canonique.
   - Base de données `data/market_uid_seed.csv` pour 50 marchés pilotes synchronisée.
 evidence:
   - Tests `crates/normalization/tests/market_uid.rs` verts via `cargo test` avec rapport collisions.

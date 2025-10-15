@@ -13,9 +13,9 @@ deps:
   - E8-S1
   - E8-S2
 acceptance:
-  - Rulepacks JSON `config/rulepacks/` couvrant 1X2, handicaps, totaux avec champs void/OT inclus/exclus.
-  - Tests `crates/normalization/tests/rulepacks.rs` garantissant alignement SX/Azuro sur 20 cas réels (`cargo test`).
-  - Documentation `docs/rules/rulepacks.md` avec workflow mise à jour et mapping.
+  - Rulepacks JSON `config/rulepacks/` couvrant 1X2, handicaps, totaux pré-match avec champs OT inclus ?, annulations, périodes (FT/1H) et mapping liste blanche ligues.
+  - Tests `crates/normalization/tests/rulepacks.rs` garantissant alignement SX/Azuro sur 20 cas réels (`cargo test`), y compris edge cases OT/void/suspension.
+  - Documentation `docs/rules/rulepacks.md` avec workflow mise à jour, mapping et rappel interdiction in-play/bridging.
 evidence:
   - Rapport tests + couverture.
   - Exemple de diff rulepack revu (PR screenshot).

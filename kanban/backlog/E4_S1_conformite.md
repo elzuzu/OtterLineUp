@@ -12,9 +12,9 @@ labels:
 deps:
   - E1-S1
 acceptance:
-  - Registre des exigences CH (CGU SX, Azuro, KYC, anti-gubbing) consigné dans `docs/compliance/register.md`.
-  - Processus d’escalade void/palpable error défini avec SLA < 1 h et contacts listés.
-  - Checklist d’audit (automation, multi-compte) validée par Legal.
+  - Registre des exigences CH (CGU SX, Azuro, KYC, anti-gubbing) consigné dans `docs/compliance/register.md`, incluant liste blanche protocoles/ligues autorisées et rappel interdiction bridge/in-play.
+  - Processus d’escalade void/palpable error défini avec SLA < 1 h et contacts listés, intégrant safe-stop & drain propre.
+  - Checklist d’audit (automation, multi-compte, flag `REAL_MONEY`) validée par Legal et partagée avec ops.
 evidence:
   - Document `docs/compliance/register.md` signé Legal.
   - Procédure `runbooks/void_escalation.md` avec workflow.

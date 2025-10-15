@@ -25,6 +25,27 @@ const createClient = (response: OrderResponse, metaOverride: Partial<SxClientMet
     clock: () => now,
   });
 
+const createCachingClient = () => {
+  let calls = 0;
+  const metadata = {
+    latest: async () => {
+      calls += 1;
+      if (calls > 1) {
+        throw new Error('metadata refetched despite valid cache');
+      }
+      return baseMeta();
+    },
+  };
+  const client = new SxClient({
+    metadataTtlMs: 1_000,
+    metadata,
+    quotes: { bestQuote: async () => quote },
+    executor: orderExecutor({ status: 'accepted', fills: [] }),
+    clock: () => now,
+  });
+  return { client, getCalls: () => calls };
+};
+
 await (async () => {
   const laddered = await createClient({ status: 'accepted', fills: [] }).getBestQuote({ marketUid: 'm1', side: 'back', stake: 50 });
   console.assert(Math.abs(laddered.odds - 1.95) < 1e-9, 'quote should align to ladder');
@@ -46,4 +67,9 @@ await (async () => {
   } catch (error) {
     console.assert(error instanceof SxClientError && error.code === 'E-SX-ODDS-SLIPPAGE', 'slippage error mismatch');
   }
+
+  const { client, getCalls } = createCachingClient();
+  await client.getBestQuote({ marketUid: 'm1', side: 'back', stake: 10 });
+  await client.placeBet({ marketUid: 'm1', side: 'back', stake: 10, odds: 1.9, oddsSlippage: 0.01 });
+  console.assert(getCalls() === 1, 'metadata should be fetched once while cache is fresh');
 })();

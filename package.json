@@ -1,0 +1,8 @@
+{
+  "name": "otter-line-up",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": { "build": "tsc --noEmit", "lint": "tsc --noEmit", "test": "npm run lint" },
+  "dependencies": { "yaml": "^2.4.2" },
+  "devDependencies": { "@types/node": "^20.12.8", "typescript": "^5.4.5" }
+}

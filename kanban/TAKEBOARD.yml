@@ -111,17 +111,17 @@ epics:
       - id: E6-S1-T3
         title: "CamelCase payloads & stake semantics"
         type: Task
-        status: In_Progress
+        status: In_Review
         assignee: agent-otter-6
         notes: "CamelCase serialization pour simulateQuote + distinction stake/amountToken."
 board:
   Ready: []
   In_Progress:
     - E6-S1
-    - E6-S1-T3
   In_Review:
     - E6-S1-T1
     - E6-S1-T2
+    - E6-S1-T3
   Done:
     - BLOCKER-TAKEBOARD
   Blocked: []

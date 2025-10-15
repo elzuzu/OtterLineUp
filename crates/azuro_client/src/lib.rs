@@ -20,7 +20,7 @@ impl Default for AzuroConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct QuoteRequest {
-    #[serde(alias = "stake_usd")]
+    #[serde(rename = "stakeUsd", alias = "stake_usd")]
     pub stake: f64,
     #[serde(alias = "amount_token", default, skip_serializing_if = "Option::is_none")]
     pub amount_token: Option<f64>,
@@ -52,7 +52,7 @@ pub struct QuoteSimulation {
     pub marginal_odd: f64,
     #[serde(alias = "delta")]
     pub delta: f64,
-    #[serde(alias = "stake_usd")]
+    #[serde(rename = "stakeUsd", alias = "stake_usd")]
     pub stake: f64,
     #[serde(alias = "amount_token", default, skip_serializing_if = "Option::is_none")]
     pub amount_token: Option<f64>,
@@ -254,8 +254,8 @@ mod tests {
         let object = value.as_object().expect("object");
         assert!(object.contains_key("quotedOdd"));
         assert!(object.contains_key("marginalOdd"));
-        assert_eq!(object.get("stake").and_then(|v| v.as_f64()), Some(25.0));
+        assert_eq!(object.get("stakeUsd").and_then(|v| v.as_f64()), Some(25.0));
         assert!(object.contains_key("amountToken"));
-        assert!(!object.contains_key("stakeUsd"));
+        assert!(!object.contains_key("stake"));
     }
 }

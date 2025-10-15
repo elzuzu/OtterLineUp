@@ -105,3 +105,20 @@ console.assert(derived.maxDeltaQuoteToFill === 0.018, 'derived maxDeltaQuoteToFi
 console.assert(derived.minNetMarginPct === 0.017, 'derived minNetMarginPct mismatch');
 console.assert(derived.minSampleSize === 20, 'derived minSampleSize mismatch');
 console.assert(derived.maxVoidRate === 0.12, 'derived maxVoidRate mismatch');
+
+const invalidConfigs = [
+  { exec: { fill_ratio_min: 1.2, p95_accept_time_ms_max: 800, delta_odd_reject: 0.01, threshold_net_pct: 0.01 } },
+  { exec: { fill_ratio_min: 0.5, p95_accept_time_ms_max: 0, delta_odd_reject: 0.01, threshold_net_pct: 0.01 } },
+  { exec: { fill_ratio_min: 0.5, p95_accept_time_ms_max: 800, delta_odd_reject: -0.1, threshold_net_pct: 0.01 } },
+  { exec: { fill_ratio_min: 0.5, p95_accept_time_ms_max: 800, delta_odd_reject: 0.01, threshold_net_pct: 1.5 } },
+  { exec: { fill_ratio_min: 0.5, p95_accept_time_ms_max: 800, delta_odd_reject: 0.01, threshold_net_pct: 0.01, min_sample_size: 0 } },
+  { exec: { fill_ratio_min: 0.5, p95_accept_time_ms_max: 800, delta_odd_reject: 0.01, threshold_net_pct: 0.01, max_void_rate: 1.1 } },
+];
+for (const invalidConfig of invalidConfigs) {
+  try {
+    deriveComplianceThresholds(invalidConfig as any);
+    console.assert(false, 'invalid thresholds should throw');
+  } catch (error) {
+    console.assert(error instanceof Error, 'invalid thresholds should throw Error');
+  }
+}

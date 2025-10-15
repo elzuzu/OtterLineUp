@@ -42,6 +42,13 @@ const ensureFiniteNumber = (value: unknown, label: string): number => {
   return value;
 };
 
+const ensureZeroToOne = (value: number, label: string): number => {
+  if (value < 0 || value > 1) {
+    throw new Error(`${label} must be between 0 and 1`);
+  }
+  return value;
+};
+
 const optionalFiniteNumber = (
   value: unknown,
   label: string,
@@ -125,27 +132,46 @@ export function deriveComplianceThresholds(
     throw new Error('Config payload must be an object');
   }
   const exec = config.exec ?? {};
-  const minFillRatio = ensureFiniteNumber(exec.fill_ratio_min, 'exec.fill_ratio_min');
+  const minFillRatio = ensureZeroToOne(
+    ensureFiniteNumber(exec.fill_ratio_min, 'exec.fill_ratio_min'),
+    'exec.fill_ratio_min',
+  );
   const maxP95AcceptTimeMs = ensureFiniteNumber(
     exec.p95_accept_time_ms_max,
     'exec.p95_accept_time_ms_max',
   );
-  const maxDeltaQuoteToFill = ensureFiniteNumber(
-    exec.delta_quote_to_fill_max ?? exec.delta_odd_reject,
+  if (maxP95AcceptTimeMs <= 0) {
+    throw new Error('exec.p95_accept_time_ms_max must be greater than 0');
+  }
+  const maxDeltaQuoteToFill = ensureZeroToOne(
+    ensureFiniteNumber(
+      exec.delta_quote_to_fill_max ?? exec.delta_odd_reject,
+      'exec.delta_quote_to_fill_max | exec.delta_odd_reject',
+    ),
     'exec.delta_quote_to_fill_max | exec.delta_odd_reject',
   );
-  const minNetMarginPct = ensureFiniteNumber(
-    exec.threshold_net_pct,
+  const minNetMarginPct = ensureZeroToOne(
+    ensureFiniteNumber(exec.threshold_net_pct, 'exec.threshold_net_pct'),
     'exec.threshold_net_pct',
   );
   const minSampleSize = optionalFiniteNumber(
     exec.min_sample_size ?? options.minSampleSize ?? 20,
     'min_sample_size',
   );
-  const maxVoidRate = optionalFiniteNumber(
+  if (
+    minSampleSize !== undefined &&
+    (!Number.isInteger(minSampleSize) || minSampleSize < 1)
+  ) {
+    throw new Error('min_sample_size must be an integer ≥ 1');
+  }
+  const maxVoidRateCandidate = optionalFiniteNumber(
     exec.max_void_rate ?? options.maxVoidRate,
     'max_void_rate',
   );
+  const maxVoidRate =
+    maxVoidRateCandidate === undefined
+      ? undefined
+      : ensureZeroToOne(maxVoidRateCandidate, 'max_void_rate');
 
   return {
     minFillRatio,

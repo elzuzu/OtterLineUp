@@ -26,7 +26,7 @@ fn validate_decimal(decimal_odds: Decimal) -> Result<(), ConversionError> {
 }
 
 fn validate_commission(rate: Decimal) -> Result<(), ConversionError> {
-    if rate <= Decimal::ZERO || rate >= Decimal::ONE {
+    if rate < Decimal::ZERO || rate >= Decimal::ONE {
         return Err(ConversionError::InvalidCommission);
     }
     Ok(())
@@ -171,7 +171,7 @@ mod tests {
         let decimal = dec("2.50");
         let rate = dec("0.05");
         let net = decimal_after_commission(decimal, rate).expect("net decimal");
-        assert!((net - dec("2.375")).abs() < Decimal::new(1, 6));
+        assert!((net - dec("2.425")).abs() < Decimal::new(1, 6));
     }
 
     proptest! {

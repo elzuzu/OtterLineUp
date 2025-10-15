@@ -1,4 +1,5 @@
 use rust_decimal::Decimal;
+use thiserror::Error;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct NetMarginBreakdown {
@@ -20,24 +21,45 @@ pub struct NetMarginInputs {
     pub slippage_azuro: Decimal,
 }
 
+#[derive(Debug, Error, PartialEq, Eq)]
+pub enum NetMarginError {
+    #[error("decimal odds must be greater than 1")]
+    InvalidOdds,
+    #[error("{0} must be non-negative")]
+    NegativeCost(&'static str),
+    #[error("net margin threshold must be within (-1, 1)")]
+    InvalidThreshold,
+}
+
 impl NetMarginInputs {
-    fn validate(self) -> Option<()> {
+    fn validate(self) -> Result<(), NetMarginError> {
         if self.odds_sx <= Decimal::ONE || self.odds_azuro <= Decimal::ONE {
-            return None;
+            return Err(NetMarginError::InvalidOdds);
         }
-        if self.fees_sx < Decimal::ZERO
-            || self.fees_azuro < Decimal::ZERO
-            || self.gas_cost < Decimal::ZERO
-            || self.slippage_sx < Decimal::ZERO
-            || self.slippage_azuro < Decimal::ZERO
-        {
-            return None;
-        }
-        Some(())
+        ensure_non_negative(self.fees_sx, "fees_sx")?;
+        ensure_non_negative(self.fees_azuro, "fees_azuro")?;
+        ensure_non_negative(self.gas_cost, "gas_cost")?;
+        ensure_non_negative(self.slippage_sx, "slippage_sx")?;
+        ensure_non_negative(self.slippage_azuro, "slippage_azuro")?;
+        Ok(())
     }
 }
 
-pub fn compute_net_margin(inputs: NetMarginInputs) -> Option<NetMarginBreakdown> {
+fn ensure_non_negative(value: Decimal, label: &'static str) -> Result<(), NetMarginError> {
+    if value < Decimal::ZERO {
+        return Err(NetMarginError::NegativeCost(label));
+    }
+    Ok(())
+}
+
+fn validate_threshold(threshold: Decimal) -> Result<(), NetMarginError> {
+    if threshold <= -Decimal::ONE || threshold >= Decimal::ONE {
+        return Err(NetMarginError::InvalidThreshold);
+    }
+    Ok(())
+}
+
+pub fn compute_net_margin(inputs: NetMarginInputs) -> Result<NetMarginBreakdown, NetMarginError> {
     inputs.validate()?;
 
     let implied_sx = Decimal::ONE / inputs.odds_sx;
@@ -51,13 +73,23 @@ pub fn compute_net_margin(inputs: NetMarginInputs) -> Option<NetMarginBreakdown>
     let deductions = fees_total + slippage_total + gas_total;
     let net_margin = gross_margin - deductions;
 
-    Some(NetMarginBreakdown {
+    Ok(NetMarginBreakdown {
         gross_margin,
         fees_total,
         slippage_total,
         gas_total,
         net_margin,
     })
+}
+
+pub fn meets_net_margin_threshold(
+    inputs: NetMarginInputs,
+    threshold: Decimal,
+) -> Result<(NetMarginBreakdown, bool), NetMarginError> {
+    validate_threshold(threshold)?;
+    let breakdown = compute_net_margin(inputs)?;
+    let meets_threshold = breakdown.net_margin >= threshold;
+    Ok((breakdown, meets_threshold))
 }
 
 #[cfg(test)]
@@ -80,7 +112,10 @@ mod tests {
             slippage_sx: Decimal::ZERO,
             slippage_azuro: Decimal::ZERO,
         };
-        assert!(compute_net_margin(inputs).is_none());
+        assert_eq!(
+            compute_net_margin(inputs).unwrap_err(),
+            NetMarginError::InvalidOdds
+        );
     }
 
     #[test]
@@ -94,7 +129,10 @@ mod tests {
             slippage_sx: Decimal::ZERO,
             slippage_azuro: Decimal::ZERO,
         };
-        assert!(compute_net_margin(inputs).is_none());
+        assert_eq!(
+            compute_net_margin(inputs).unwrap_err(),
+            NetMarginError::NegativeCost("fees_sx")
+        );
     }
 
     #[test]
@@ -118,5 +156,29 @@ mod tests {
 
         let expected_net = breakdown.gross_margin - dec("0.0083");
         assert!((breakdown.net_margin - expected_net).abs() < Decimal::new(1, 6));
+    }
+
+    #[test]
+    fn validates_threshold_and_reports_decision() {
+        let inputs = NetMarginInputs {
+            odds_sx: dec("2.25"),
+            odds_azuro: dec("2.40"),
+            fees_sx: dec("0.0020"),
+            fees_azuro: dec("0.0020"),
+            gas_cost: dec("0.0012"),
+            slippage_sx: dec("0.0010"),
+            slippage_azuro: dec("0.0011"),
+        };
+
+        let threshold = dec("0.015");
+        let (breakdown, meets) =
+            meets_net_margin_threshold(inputs, threshold).expect("threshold evaluation");
+        assert_eq!(breakdown.net_margin >= threshold, meets);
+
+        let invalid_threshold = dec("1.2");
+        assert_eq!(
+            meets_net_margin_threshold(inputs, invalid_threshold).unwrap_err(),
+            NetMarginError::InvalidThreshold
+        );
     }
 }

@@ -15,6 +15,12 @@ export interface ComplianceGuardResult {
   metrics: MetricsSnapshot;
 }
 
+export interface ExecConfigEnvelope {
+  exec?: {
+    real_money?: unknown;
+  };
+}
+
 const isFiniteNumber = (value: number): boolean => Number.isFinite(value);
 
 export function evaluateMetricsCompliance(
@@ -72,4 +78,14 @@ export function evaluateMetricsCompliance(
   }
 
   return { shouldPause: violations.length > 0, violations, metrics: snapshot };
+}
+
+export function assertRealMoneyEnabled(config: ExecConfigEnvelope): void {
+  if (!config || typeof config !== 'object') {
+    throw new Error('Config payload must be an object');
+  }
+  const flag = config.exec?.real_money;
+  if (flag !== true) {
+    throw new Error('REAL_MONEY flag must be true in exec config');
+  }
 }

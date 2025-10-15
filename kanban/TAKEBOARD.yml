@@ -1,0 +1,18 @@
+---
+epics:
+  EPIC-1:
+    title: Gouvernance & Périmètre SX↔Azuro
+    status: Ready
+lanes:
+  Backlog:
+    - E1-S1
+  Ready: []
+  In_Progress: []
+  In_Review: []
+  Done:
+    - B0-TKB
+  Blocked: []
+meta:
+  updated_at: 2024-06-11T00:00:00Z
+  owner: lane-gouvernance
+---

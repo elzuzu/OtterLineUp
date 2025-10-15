@@ -171,11 +171,17 @@ epics:
         type: Story
         status: In_Review
         assignee: agent-otter-4
-board:
-  Ready: []
-  In_Progress: []
-  In_Review:
-    - E4-S1
-  Done: []
-  Blocked: []
+      - id: E4-S2
+        title: "Métriques compliance (fill_ratio, p95, Δquote)"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-4
+    board:
+      Ready: []
+      In_Progress: []
+      In_Review:
+        - E4-S1
+        - E4-S2
+      Done: []
+      Blocked: []
 updated_at: "2024-06-11T18:00:00Z"

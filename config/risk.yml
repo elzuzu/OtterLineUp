@@ -1,0 +1,27 @@
+version: 2024-06-12
+config_hash: 5f18a1b1d6c0e0831f7fc8e9f93e6b0f
+bank:
+  source:
+    chain: sx-rollup
+    token: USDC
+    account: main-treasury
+sizing:
+  stake_pct_cap: 0.035
+  stake_min: 5
+  stake_max: 60
+  stake_step: 0.5
+limits:
+  max_concurrent_trades: 3
+  stop_loss:
+    type: absolute
+    value: 10
+  alert_balance_usd: 15
+markets:
+  excluded_leagues: [SX:SIM]
+  excluded_markets: [player-props]
+  odds_slippage:
+    default: 0.02
+    per_market: { moneyline: 0.015, spread: 0.02 }
+    delta_odd_reject: 0.02
+thresholds:
+  m_net_pct: 0.015

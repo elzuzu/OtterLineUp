@@ -1,0 +1,25 @@
+risk:
+  bank:
+    source:
+      chain: sx-rollup
+      token: USDC
+      account: treasury-placeholder
+  sizing:
+    stake_pct_cap: 0.02
+    stake_min: 2.5
+    stake_max: 25
+  limits:
+    max_concurrent_trades: 2
+    stop_loss:
+      type: percent
+      value: 10
+    alert_balance_usd: 20
+  markets:
+    excluded_leagues: []
+    excluded_markets: []
+    odds_slippage:
+      default: 0.02
+      per_market: {}
+      delta_odd_reject: 0.02
+  thresholds:
+    m_net_pct: 0.015

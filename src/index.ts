@@ -22,6 +22,15 @@ export {
 } from './core/riskPolicy.js';
 export { MetricsTracker, type MetricsSnapshot, type TradeSample } from './ops/metrics.js';
 export {
+  evaluateMetricsCompliance,
+  assertRealMoneyEnabled,
+  deriveComplianceThresholds,
+  type ComplianceThresholds,
+  type ComplianceGuardResult,
+  type ExecConfigEnvelope,
+  type DeriveComplianceOptions,
+} from './ops/complianceGuards.js';
+export {
   OddsConversionError,
   americanFromDecimal,
   decimalFromAmerican,

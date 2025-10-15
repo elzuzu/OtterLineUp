@@ -147,8 +147,10 @@ epics:
         type: Story
         status: In_Progress
         assignee: agent-otter-5
+        notes:
+          - "2024-06-13: Ajout du délai de grâce betting_delay dans le timeout heartbeat"
     board: { Ready: [], In_Progress: [E5-S1], In_Review: [], Done: [], Blocked: [] }
-    updated_at: "2024-06-12T12:00:00Z"
+    updated_at: "2024-06-13T12:00:00Z"
 ---
 epics:
   EPIC-2:

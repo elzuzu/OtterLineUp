@@ -51,6 +51,13 @@ epics:
           title: "Politique de sizing & limites SX↔Azuro"
           assignee: agent-otter-3
           notes: ["2024-06-12: Implémentation RiskPolicy TypeScript + configs risk/defaults"]
+        - id: E3-S1-T3
+          title: "Cache runtime bank & gas (TypeScript)"
+          type: Task
+          status: In_Review
+          assignee: agent-otter-3
+          notes:
+            - "2024-07-01: RuntimeRegistry TTL caches pour bank/gas/metadata (support sizing)"
       Done: []
 board:
   Backlog: []
@@ -63,6 +70,8 @@ board:
       ticket: E7-S1a
     - epic: EPIC-3
       ticket: E3-S1
+    - epic: EPIC-3
+      ticket: E3-S1-T3
   Done: []
 epics:
   EPIC-6:

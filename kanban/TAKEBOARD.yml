@@ -2,12 +2,12 @@
 epics:
   EPIC-1:
     title: Gouvernance & Périmètre SX↔Azuro
-    status: Ready
+    status: In_Progress
 lanes:
-  Backlog:
-    - E1-S1
+  Backlog: []
   Ready: []
-  In_Progress: []
+  In_Progress:
+    - E1-S1
   In_Review: []
   Done:
     - B0-TKB
@@ -86,3 +86,23 @@ board:
   Done: []
   Blocked: []
 updated_at: "2024-06-11T00:00:00Z"
+
+epics:
+  EPIC-4:
+    title: "Compliance & garde-fous réglementaires"
+    owner: lane-compliance
+    status: In_Progress
+    tickets:
+      - id: E4-S1
+        title: "Cadre conformité CH & SX/Azuro"
+        type: Story
+        status: In_Progress
+        assignee: agent-otter-4
+board:
+  Ready: []
+  In_Progress:
+    - E4-S1
+  In_Review: []
+  Done: []
+  Blocked: []
+updated_at: "2024-06-11T12:00:00Z"

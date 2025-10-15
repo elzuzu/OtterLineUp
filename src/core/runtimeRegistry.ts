@@ -1,7 +1,20 @@
-export type BankSnapshot = { totalUsd: number; perChainUsd: Record<string, number>; fetchedAt: Date };
+export type BankSnapshot = {
+  totalUsd: number;
+  perChainUsd: Record<string, number>;
+  fetchedAt: Date;
+};
+
 export type GasSnapshot = { chain: string; priceGwei: number; fetchedAt: Date };
-export type SxMetadataSnapshot = { oddsLadder: number[]; bettingDelayMs: number; heartbeatMs: number; fetchedAt: Date };
+
+export type SxMetadataSnapshot = {
+  oddsLadder: number[];
+  bettingDelayMs: number;
+  heartbeatMs: number;
+  fetchedAt: Date;
+};
+
 export type AzuroLimitsSnapshot = { maxPayoutUsd: number; quoteMargin: number; fetchedAt: Date };
+
 export type SequencerStatus = { chain: string; healthy: boolean; checkedAt: Date };
 
 export type RuntimeFetchers = {
@@ -41,6 +54,11 @@ const extractTimestamp = (value: unknown): number | null => {
     const candidate = (value as Record<string, unknown>)[field];
     if (candidate instanceof Date) {
       return candidate.getTime();
+    if (field in value) {
+      const candidate = (value as Record<string, unknown>)[field];
+      if (candidate instanceof Date) {
+        return candidate.getTime();
+      }
     }
   }
   return null;
@@ -51,11 +69,13 @@ const computeExpiry = (value: unknown, ttlMs: number, label: string, now: number
   if (timestamp === null) {
     throw new Error(`RuntimeRegistry: ${label} snapshot missing timestamp`);
   }
+  if (timestamp === null) throw new Error(`RuntimeRegistry: ${label} snapshot missing timestamp`);
   const age = now - timestamp;
   if (age > ttlMs) {
     throw new Error(`RuntimeRegistry: ${label} snapshot stale (age ${age}ms > ttl ${ttlMs}ms)`);
   }
   return Math.min(now, timestamp) + ttlMs;
+  return timestamp + ttlMs;
 };
 
 export class RuntimeRegistry {
@@ -80,7 +100,7 @@ export class RuntimeRegistry {
   }
 
   async getGas(chain: string): Promise<GasSnapshot> {
-    if (typeof chain !== 'string' || chain.length === 0) {
+    if (typeof chain !== 'string' || chain.trim().length === 0) {
       throw new Error('RuntimeRegistry: chain required for gas');
     }
     let slot = this.gasSlots.get(chain);
@@ -96,7 +116,12 @@ export class RuntimeRegistry {
   }
 
   async getAzuroLimits(): Promise<AzuroLimitsSnapshot> {
-    return this.resolve(this.azuroSlot, this.options.ttl.azuroLimitsMs, this.options.fetchers.azuroLimits, 'azuroLimits');
+    return this.resolve(
+      this.azuroSlot,
+      this.options.ttl.azuroLimitsMs,
+      this.options.fetchers.azuroLimits,
+      'azuroLimits',
+    );
   }
 
   async sequencerHealth(): Promise<SequencerStatus> {
@@ -133,6 +158,11 @@ export class RuntimeRegistry {
       .then((value) => {
         const expiry = computeExpiry(value, ttlMs, label, this.now());
         slot.entry = { value, expiresAt: expiry };
+        const completionTime = this.now();
+        const expiresAt = computeExpiry(value, ttlMs, label, completionTime);
+        slot.entry = { value, expiresAt };
+        const completedAt = this.now();
+        slot.entry = { value, expiresAt: computeExpiry(value, ttlMs, label, completedAt) };
         slot.pending = null;
         return value;
       })

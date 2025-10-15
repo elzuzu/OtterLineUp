@@ -57,7 +57,14 @@ epics:
     tickets:
       Backlog: []
       Ready: []
-      In_Progress: []
+      In_Progress:
+        - id: E3-S1-T5
+          title: "RuntimeRegistry TTL & cache guards"
+          type: Task
+          status: In_Progress
+          assignee: agent-otter-3
+          notes:
+            - "2024-07-06: Nettoyage duplications + validation timestamps (agent-otter-3)"
       In_Review:
         - id: E3-S1
           title: "Politique de sizing & limites SX↔Azuro"
@@ -87,6 +94,8 @@ board:
       ticket: E7-S1
     - epic: EPIC-3
       ticket: E3-S1-T4
+    - epic: EPIC-3
+      ticket: E3-S1-T5
   In_Review:
     - epic: EPIC-7
       ticket: E7-S1a
@@ -104,6 +113,8 @@ board:
       ticket: E4-S4
     - epic: EPIC-2
       ticket: E2-S1-T4
+    - epic: EPIC-2
+      ticket: E2-S1-T5
   Done: []
 epics:
   EPIC-6:
@@ -138,6 +149,11 @@ epics:
         status: In_Review
         assignee: agent-otter-6
         notes: "CamelCase serialization pour simulateQuote + distinction stake/amountToken."
+      - id: E6-S1-T4
+        title: "Client TS simulateQuote"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-6
 board:
   Ready: []
   In_Progress:
@@ -146,10 +162,11 @@ board:
     - E6-S1-T1
     - E6-S1-T2
     - E6-S1-T3
+    - E6-S1-T4
   Done:
     - BLOCKER-TAKEBOARD
   Blocked: []
-  updated_at: "2024-07-02T08:00:00Z"
+  updated_at: "2024-07-05T18:00:00Z"
 updated_at: "2024-06-11T00:00:00Z"
 updated_at: "2024-06-10T00:00:00Z"
 ---
@@ -176,17 +193,25 @@ epics:
       - id: E10-S1-T2
         title: "Auto-pause tracker idempotent"
         type: Task
-        status: In_Progress
+        status: In_Review
         assignee: agent-otter-10
         notes:
           - "2024-07-05: Tracker déduplication des raisons auto-pause + reset recovery"
+      - id: E10-S1-T3
+        title: "ExecutionService auto-pause gating"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-10
+        notes:
+          - "2024-07-06: ExecutionService status/resume resets tracker"
     board:
       Ready: []
       In_Progress:
         - E10-S1
-        - E10-S1-T2
       In_Review:
         - E10-S1-T1
+        - E10-S1-T2
+        - E10-S1-T3
   EPIC-8:
     title: "Normalisation marchés & mapping"
     owner: lane-normalisation
@@ -214,6 +239,13 @@ epics:
         assignee: agent-otter-8
         notes:
           - "2024-07-06: Guard eventTimestamp invalid Date + tests"
+      - id: E8-S1-T4
+        title: "Validateur format MarketUID TypeScript"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-8
+        notes:
+          - "2024-07-06: isMarketUid + assertMarketUid (SDK TS)"
     board:
       Ready: []
       In_Progress:
@@ -221,6 +253,7 @@ epics:
       In_Review:
         - E8-S1-T2
         - E8-S1-T3
+        - E8-S1-T4
       Done: []
       Blocked: []
     updated_at: "2024-07-06T09:00:00Z"
@@ -295,12 +328,20 @@ epics:
         assignee: agent-otter-2
         notes:
           - "Automatiser append audit JSON depuis scripts/vault_smoke.sh"
+      - id: E2-S1-T5
+        title: "Rotation API: écriture sécurisée KV v2"
+        type: Task
+        status: In_Review
+        assignee: agent-otter-2
+        notes:
+          - "VaultClient expose writeSecret avec re-auth automatique"
 board:
   Ready: []
   In_Progress: []
   In_Review:
     - E2-S1-T3
     - E2-S1-T4
+    - E2-S1-T5
   Done:
     - E2-S1
   Blocked: []

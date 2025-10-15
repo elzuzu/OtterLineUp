@@ -94,6 +94,7 @@ epics:
         type: Story
         status: In_Progress
         assignee: agent-otter-2
+        notes: "Vault policies extended, CI smoke wired"
 board:
   Ready: []
   In_Progress:
@@ -115,7 +116,7 @@ board:
   In_Review: []
   Done: []
   Blocked: []
-updated_at: "2024-06-11T00:00:00Z"
+updated_at: "2024-06-11T18:00:00Z"
 
 epics:
   EPIC-4:

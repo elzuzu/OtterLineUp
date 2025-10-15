@@ -82,4 +82,59 @@ describe('VaultClient', () => {
       return true;
     });
   });
+
+  it('writes secrets and re-authenticates when the token is invalidated', async () => {
+    const responses: MockResponse[] = [
+      { status: 200, body: { auth: { client_token: 'token-1', lease_duration: 120 } } },
+      { status: 403, body: { errors: ['permission denied'] } },
+      { status: 200, body: { auth: { client_token: 'token-2', lease_duration: 120 } } },
+      { status: 204 },
+    ];
+    const calls: Array<{ url: string; init?: RequestInit }> = [];
+    const fetchStub: typeof fetch = async (url, init) => {
+      calls.push({ url: String(url), init });
+      const next = responses.shift();
+      if (!next) throw new Error('unexpected fetch invocation');
+      return jsonResponse(next.status, next.body);
+    };
+
+    const client = new VaultClient({
+      baseUrl: 'https://vault.example',
+      roleId: 'role',
+      secretId: 'secret',
+      fetchImpl: fetchStub,
+      minRenewSeconds: 10,
+    });
+
+    await client.writeSecret('secret/data/foo', { foo: 'baz' });
+    assert.equal(responses.length, 0);
+    assert.equal(calls.length, 4);
+
+    const writeCall = calls[1]!;
+    assert.equal(writeCall.url, 'https://vault.example/v1/secret/data/foo');
+    const firstHeaders = writeCall.init?.headers as Record<string, string> | undefined;
+    assert.ok(firstHeaders);
+    assert.equal(firstHeaders['X-Vault-Token'], 'token-1');
+    assert.equal(firstHeaders['Content-Type'], 'application/json');
+    assert.equal(writeCall.init?.body, JSON.stringify({ data: { foo: 'baz' } }));
+
+    const retryCall = calls[3]!;
+    const retryHeaders = retryCall.init?.headers as Record<string, string> | undefined;
+    assert.ok(retryHeaders);
+    assert.equal(retryHeaders['X-Vault-Token'], 'token-2');
+    assert.equal(retryCall.init?.body, JSON.stringify({ data: { foo: 'baz' } }));
+  });
+
+  it('requires writeSecret data to be an object', async () => {
+    const client = new VaultClient({
+      baseUrl: 'https://vault.example',
+      roleId: 'role',
+      secretId: 'secret',
+    });
+
+    await assert.rejects(
+      async () => client.writeSecret('secret/data/foo', null as unknown as Record<string, unknown>),
+      /requires data object/,
+    );
+  });
 });

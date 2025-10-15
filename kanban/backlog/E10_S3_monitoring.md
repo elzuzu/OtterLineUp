@@ -13,20 +13,20 @@ deps:
   - E7-S1
   - E10-S1
 acceptance:
-  - Monitors sequencer SX Rollup & Arbitrum (`crates/monitoring/src/bin/sequencer_check.rs` + `monitoring/sequencer_checks.yaml`) avec alertes < 2 min.
-  - Runbook incident `runbooks/sequencer_incident.md` incluant contact opérateur, plan fallback (suspension trading).
-  - Tests chaos ou simulation panne documentée (`analytics/sequencer_drill.md`).
+  - Monitors sequencer SX Rollup & Arbitrum (`crates/monitoring/src/bin/sequencer_check.rs` + `monitoring/sequencer_checks.yaml`) avec alertes < 2 min et publication statut pour orchestrateur (auto-pause immédiate).
+  - Runbook incident `runbooks/sequencer_incident.md` incluant contact opérateur, plan fallback (suspension trading) et scénarios coordination watcher RPC SX Rollup.
+  - Tests chaos ou simulation panne documentée (`analytics/sequencer_drill.md`) démontrant propagation auto-pause et reprise contrôlée.
 evidence:
   - Capture alerte déclenchée (screenshot/alertmanager export).
   - Log simulation `evidence/sequencer_drill.log`.
   - Validation ops confirmée.
 tasks:
-  - Configurer probes (status API, block height) pour SX & Arbitrum via binaire Rust (`tokio`, `reqwest`, `serde_json`).
-  - Intégrer alerting (Pager/SMS) avec escalade.
-  - Réaliser exercice DR et documenter.
+  - Configurer probes (status API, block height) pour SX & Arbitrum via binaire Rust (`tokio`, `reqwest`, `serde_json`) exposant métriques Prometheus + feed orchestrateur.
+  - Intégrer alerting (Pager/SMS) avec escalade et validation auto-pause lane E10.
+  - Réaliser exercice DR et documenter, y compris tests croisés avec watcher RPC SX Rollup.
 observability:
-  - KPIs : temps détection incident, temps résolution.
-  - Logs : `sequencer_check.log`, alertmanager events.
+  - KPIs : temps détection incident, temps résolution, délai propagation auto-pause.
+  - Logs : `sequencer_check.log`, `rpc_check.log`, alertmanager events (UTC ISO8601).
 references:
   - docs/CHATGPT.txt
   - Arbitrum status API

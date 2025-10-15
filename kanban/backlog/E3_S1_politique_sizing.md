@@ -13,16 +13,17 @@ deps:
   - E1-S1
 acceptance:
   - Modèle de sizing bankroll 200 USD fixant 5–15 USD par jambe, max 10 % de la banque par trade et stop-day −10 USD, publié avec scénarios comparés (flat vs Kelly ≤ 0,25).
-  - Limites par ligue/marché/mise définies et automatisables via config `risk/sizing.yaml`, incluant contrôles partial fills SX et rejet marchés in-play.
+  - Limites par ligue/marché/mise définies et automatisables via config `risk/sizing.yaml`, incluant contrôles partial fills SX, rejet marchés in-play et sections `oddsSlippage` par type (ML ≤ 1, Handicap/Total ≤ 2).
   - Seuil m_net ≥ 1,5 % confirmé après coûts (frais SX, Azuro, gaz, slippage) avec table calcul et estimateur ±5 % documenté.
+  - Politique de surveillance soldes (`watchers/balance_policies.md`) rappelant alerte `< 15 USD`/wallet et interdiction bridge auto.
 evidence:
   - Fichier `risk/sizing.yaml` versionné.
   - Notebook ou table `analytics/sizing_scenarios.xlsx` contenant simulations.
   - CR de revue risk signé (commentaires résolus).
 tasks:
   - Collecter historiques fills/limits SX & Azuro (API quotas) pour calibrage.
-  - Construire `risk/sizing.yaml` (stake min/max, ligues interdites, step size).
-  - Documenter méthodologie dans `docs/risk/sizing.md` avec exemples chiffrés.
+  - Construire `risk/sizing.yaml` (stake min/max, ligues interdites, step size, `oddsSlippage` bornes) et relier au watcher solde.
+  - Documenter méthodologie dans `docs/risk/sizing.md` avec exemples chiffrés et rappel alerte solde `< 15 USD`.
 observability:
   - KPIs : taux de fills complets, ratio m_net réalisé vs cible, variance P&L.
   - Logs : journal décisions sizing par arbitrage.
